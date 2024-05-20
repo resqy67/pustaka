@@ -1,82 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:pustaka/views/components/book/index.dart';
 
-//buatkan card widget
 class CardWidget extends StatelessWidget {
-  final String title;
-  final String description;
-  final String image;
-  final Function() onTap;
-
-  const CardWidget({
-    Key? key,
-    required this.title,
-    required this.description,
-    required this.image,
-    required this.onTap,
-  }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        elevation: 5,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Stack(
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => BookPage()));
+      },
+      child: Container(
+          color: Colors.white,
+          child: Card(
+            color: Colors.white,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Container(
+                  width: 200,
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
+                      Text(
+                        'Thinking, Fast and Slow',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
                       Container(
-                        width: 110,
-                        height: 170,
-                        child: Row(
+                        margin: EdgeInsets.only(top: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              title,
+                              'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec odio.',
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                                fontFamily: 'Poppins',
                               ),
                             ),
-                            Text(
-                              description,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.black45,
-                              ),
+                            SizedBox(height: 5),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.orange,
+                                  size: 20,
+                                ),
+                                Text(
+                                  '4.5',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             )
                           ],
                         ),
                       ),
-                      Positioned.fill(
-                        top: 40,
-                        left: 10,
-                        right: 20,
-                        bottom: 20,
-                        child: Material(
-                          child: InkWell(
-                            onTap: onTap,
-                            child: Image.network(
-                              image,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
-                  )
-                ],
-              ),
+                  ),
+                ),
+                Container(
+                  child: Image.network('https://picsum.photos/200/300'),
+                )
+              ],
             ),
-          ],
-        ));
+          )),
+    );
   }
 }
