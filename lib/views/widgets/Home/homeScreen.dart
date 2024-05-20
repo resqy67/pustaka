@@ -1,18 +1,22 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:pustaka/views/components/card.dart';
+// import 'package:pustaka/controller/TabController.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -52,7 +56,8 @@ class _HomeScreenState extends State<HomeScreen>
               ))
         ],
       ),
-      body: Center(
+      body: SingleChildScrollView(
+        // scrollDirection: Axis.vertical,
         child: Column(
           children: <Widget>[
             Container(
@@ -61,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen>
               child: Text(
                 'Buku Terbaru',
                 style: TextStyle(
-                  fontSize: 35,
+                  fontSize: 25,
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -75,11 +80,11 @@ class _HomeScreenState extends State<HomeScreen>
                 tabAlignment: TabAlignment.start,
                 indicatorWeight: 0,
                 indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: BorderRadius.circular(20),
                   color: Colors.green[50],
                 ),
                 labelPadding:
-                    EdgeInsets.only(left: 15, right: 10, top: 0, bottom: 0),
+                    EdgeInsets.only(left: 15, right: 15, top: 0, bottom: 0),
                 overlayColor: MaterialStateProperty.all(Colors.transparent),
                 labelStyle: TextStyle(
                   fontSize: 15,
@@ -88,20 +93,19 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 labelColor: Colors.green[600],
                 unselectedLabelColor: Colors.black38,
-                // indicatorColor: Colors.green,
                 tabs: <Widget>[
                   Tab(
-                    text: 'This Month',
+                    text: '  Terbaru  ',
                   ),
                   Tab(
-                    text: 'Best Seller',
+                    text: '  Disarankan  ',
                   ),
-                  Tab(
-                    text: 'New Release',
-                  ),
-                  Tab(
-                    text: 'Recommended',
-                  )
+                  // Tab(
+                  //   text: '  New Release  ',
+                  // ),
+                  // Tab(
+                  //   text: '  Recommended  ',
+                  // )
                 ],
               ),
             ),
@@ -114,26 +118,100 @@ class _HomeScreenState extends State<HomeScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: <Widget>[
-                    Container(
-                      child: CardWidget(
-                        title: 'Buku 1',
-                        description: 'Deskripsi Buku 1',
-                        image:
-                            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png/200px-Felis_silvestris_silvestris_small_gradual_decrease_of_quality.png',
-                        onTap: () {},
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          CardWidget(),
+                          CardWidget(),
+                          CardWidget(),
+                          CardWidget(),
+                          CardWidget(),
+                        ],
                       ),
                     ),
                     Container(
-                      child: Text('Best Seller'),
+                      child: CardWidget(),
                     ),
-                    Container(
-                      child: Text('New Release'),
-                    ),
-                    Container(
-                      child: Text('Recommended'),
-                    ),
+                    // Container(
+                    //   child: Text('New Release'),
+                    // ),
+                    // Container(
+                    //   child: Text('Recommended'),
+                    // ),
                   ],
                 )),
+            Container(
+              alignment: Alignment.centerLeft,
+              margin: EdgeInsets.only(top: 20, left: 25, bottom: 10),
+              child: Text(
+                'Mungkin Kamu Suka',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: List.generate(10, (index) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width / 2 -
+                        15, // Lebar setengah dari layar dengan jarak antar item
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Card(
+                          clipBehavior: Clip.antiAlias,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Image.network(
+                                'https://picsum.photos/200/320',
+                                fit: BoxFit.cover,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Thinking, Fast and Slow',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                              Text(
+                                'James Clear',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            ),
           ],
         ),
       ),
