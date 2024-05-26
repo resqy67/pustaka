@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pustaka/views/widgets/account/accountDetail.dart';
 
 class AccountScreen extends StatelessWidget {
   @override
@@ -62,35 +63,48 @@ class AccountScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            Card(
-              child: ListTile(
-                title: Text('Account'),
-                subtitle: Text('Manage your account'),
-                leading: Icon(Icons.account_circle),
-                onTap: () {
-                  Navigator.pushNamed(context, '/account');
-                },
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Card(
+                child: ListTile(
+                  title: Text('Akun'),
+                  subtitle: Text('Kelola akun kamu'),
+                  leading: Icon(Icons.account_circle),
+                  onTap: () {
+                    // Navigator.pushNamed(context, '/account');
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return AccountDetail();
+                    }));
+                  },
+                ),
               ),
             ),
             SizedBox(height: 5),
-            // Card(
-            //   child: ListTile(
-            //     title: Text('Settings'),
-            //     subtitle: Text('Manage your settings'),
-            //     leading: Icon(Icons.settings),
-            //     onTap: () {
-            //       Navigator.pushNamed(context, '/settings');
-            //     },
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Card(
+            //     child: ListTile(
+            //       title: Text('Settings'),
+            //       subtitle: Text('Manage your settings'),
+            //       leading: Icon(Icons.settings),
+            //       onTap: () {
+            //         // Navigator.pushNamed(context, '/settings');
+            //       },
+            //     ),
             //   ),
             // ),
-            Card(
-              child: ListTile(
-                title: Text('Logout'),
-                subtitle: Text('Logout from your account'),
-                leading: Icon(Icons.logout),
-                onTap: () {
-                  Navigator.pushNamed(context, '/logout');
-                },
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Card(
+                child: ListTile(
+                  title: Text('Logout'),
+                  subtitle: Text('Logout from your account'),
+                  leading: Icon(Icons.logout),
+                  onTap: () {
+                    // Navigator.pushNamed(context, '/logout');
+                  },
+                ),
               ),
             ),
           ],
