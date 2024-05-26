@@ -26,7 +26,8 @@ class MyApp extends StatelessWidget {
         // the command line to start the app).
         //
         // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
+        // state is not los
+        //t during the reload. To reset the state, use hot
         // restart instead.
         //
         // This works for code too, not just values: Most code changes can be
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
         fontFamily: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
             .headline1!
             .fontFamily,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
         useMaterial3: true,
       ),
       // home: HomePage(),
