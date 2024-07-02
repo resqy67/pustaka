@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pustaka/views/widgets/account/accountDetail.dart';
+import 'package:pustaka/data/services/auth_service.dart';
 
 class AccountScreen extends StatelessWidget {
+  final AuthService _authService = AuthService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +73,6 @@ class AccountScreen extends StatelessWidget {
                   subtitle: Text('Kelola akun kamu'),
                   leading: Icon(Icons.account_circle),
                   onTap: () {
-                    // Navigator.pushNamed(context, '/account');
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return AccountDetail();
@@ -81,19 +82,6 @@ class AccountScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 5),
-            // Padding(
-            //   padding: const EdgeInsets.all(8.0),
-            //   child: Card(
-            //     child: ListTile(
-            //       title: Text('Settings'),
-            //       subtitle: Text('Manage your settings'),
-            //       leading: Icon(Icons.settings),
-            //       onTap: () {
-            //         // Navigator.pushNamed(context, '/settings');
-            //       },
-            //     ),
-            //   ),
-            // ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Card(
@@ -101,8 +89,9 @@ class AccountScreen extends StatelessWidget {
                   title: Text('Logout'),
                   subtitle: Text('Logout from your account'),
                   leading: Icon(Icons.logout),
-                  onTap: () {
-                    // Navigator.pushNamed(context, '/logout');
+                  onTap: () async {
+                    await _authService.logout();
+                    Navigator.pushReplacementNamed(context, '/login');
                   },
                 ),
               ),
