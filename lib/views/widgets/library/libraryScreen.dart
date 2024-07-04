@@ -135,8 +135,8 @@ class _LibraryScreenState extends State<LibraryScreen>
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => BookPage(
-                                          // book: book,
-                                          ),
+                                        bookUuid: book.uuid,
+                                      ),
                                     ),
                                   );
                                 },

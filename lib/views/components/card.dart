@@ -7,8 +7,8 @@ class CardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => BookPage()));
+        //   Navigator.push(
+        //       context, MaterialPageRoute(builder: (context) => BookPage(bookUuid: ,)));
       },
       child: Container(
           color: Colors.white,

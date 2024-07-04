@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/home': (context) => HomePage(),
           '/login': (context) => LoginScreen(),
-          '/detail-book': (context) => BookPage()
+          // '/detail-book': (context) => BookPage(bookUuid: uuid,)
         });
   }
 }

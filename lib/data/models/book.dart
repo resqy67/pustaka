@@ -9,7 +9,8 @@ class Book {
   final String pages;
   final String image;
   final String filepdf;
-  final String categories;
+  final List<String> categories;
+  final String availability;
 
   Book(
       {required this.uuid,
@@ -22,9 +23,14 @@ class Book {
       required this.pages,
       required this.image,
       required this.filepdf,
-      required this.categories});
+      required this.categories,
+      required this.availability});
 
   factory Book.fromJson(Map<String, dynamic> json) {
+    List<dynamic> categoriesJson = json['categories'] ?? [];
+    List<String> categories = categoriesJson
+        .map((categoryJson) => categoryJson['name'].toString())
+        .toList();
     return Book(
       uuid: json['uuid'].toString(),
       title: json['title'].toString(),
@@ -36,7 +42,8 @@ class Book {
       pages: json['pages'].toString(),
       image: json['image'].toString(),
       filepdf: json['filepdf'].toString(),
-      categories: json['categories'].toString(),
+      categories: categories,
+      availability: json['availability'].toString(),
     );
   }
 
@@ -53,6 +60,7 @@ class Book {
       'image': image,
       'filepdf': filepdf,
       'categories': categories,
+      'availability': availability,
     };
   }
 }

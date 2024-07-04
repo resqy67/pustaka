@@ -32,4 +32,16 @@ class GetService {
       throw Exception('failed to load books ss');
     }
   }
+
+  Future<Book> book(String uuid) async {
+    try {
+      final response = await _dio.get('/book/$uuid');
+      final data = response.data['data'];
+      return Book.fromJson(data);
+    } catch (e, stacktrace) {
+      print('Error: $e');
+      print('Stacktrace: $stacktrace');
+      throw Exception('failed to load book');
+    }
+  }
 }

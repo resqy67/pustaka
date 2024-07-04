@@ -189,8 +189,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) =>
-                                                    BookPage()));
+                                                builder: (context) => BookPage(
+                                                    bookUuid: item.uuid)));
                                       },
                                       child: Card(
                                         elevation: 0,
