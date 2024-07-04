@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pustaka/views/components/book/gridBooks.dart';
+import 'package:pustaka/views/components/book/index.dart';
 import 'package:pustaka/views/components/book/loan/index.dart';
 import 'package:pustaka/data/services/get_service.dart';
 import 'package:pustaka/data/models/book.dart';
@@ -128,58 +129,75 @@ class _LibraryScreenState extends State<LibraryScreen>
                           delegate: SliverChildBuilderDelegate(
                             (BuildContext context, index) {
                               Book book = _bookList!.books[index];
-                              return Container(
-                                width:
-                                    MediaQuery.of(context).size.width / 2 - 15,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Card(
-                                      clipBehavior: Clip.antiAlias,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          Image.network(
-                                            book.image,
-                                            // 'https://picsum.photos/200/320',
-                                            fit: BoxFit.cover,
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BookPage(
+                                          // book: book,
                                           ),
-                                        ],
-                                      ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            // 'Thinking, Fast and Slow',
-                                            book.title,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black,
-                                            ),
-                                            textAlign: TextAlign.left,
+                                  );
+                                },
+                                child: Card(
+                                  color: Colors.white,
+                                  child: Container(
+                                    // width:
+                                    //     MediaQuery.of(context).size.width / 2 -
+                                    //         15,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Card(
+                                          elevation: 0,
+                                          // clipBehavior: Clip.antiAlias,
+                                          // shape: RoundedRectangleBorder(
+                                          //     borderRadius:
+                                          //         BorderRadius.circular(10)),
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              Image.network(
+                                                book.image,
+                                                // 'https://picsum.photos/200/320',
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ],
                                           ),
-                                          Text(
-                                            // 'James Clear',
-                                            book.author,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w400,
-                                            ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                // 'Thinking, Fast and Slow',
+                                                book.title,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black,
+                                                ),
+                                                textAlign: TextAlign.left,
+                                              ),
+                                              Text(
+                                                // 'James Clear',
+                                                book.author,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontFamily: 'Poppins',
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
                               );
                             },
