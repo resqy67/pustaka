@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:pustaka/views/components/book/index.dart';
 import 'package:pustaka/views/components/card.dart';
-import 'package:pustaka/data/services/auth_service.dart';
+import 'package:pustaka/data/services/get_service.dart';
+import 'package:pustaka/data/models/book.dart';
 // import 'package:pustaka/controller/TabController.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,18 +14,39 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController;
+  final _getService = GetService();
+  BookList? _bookList;
 
   @override
   void initState() {
     super.initState();
 
     _tabController = TabController(length: 2, vsync: this);
+    _fecthBooks();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _fecthBooks() async {
+    try {
+      // BookList bookList = await _getService.books();
+      BookList bookList = await _getService.books();
+      setState(() {
+        _bookList = bookList;
+      });
+      print(_bookList);
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('failed to load books $e'),
+        ),
+      );
+    }
   }
 
   @override
@@ -101,12 +124,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   Tab(
                     text: '  Disarankan  ',
                   ),
-                  // Tab(
-                  //   text: '  New Release  ',
-                  // ),
-                  // Tab(
-                  //   text: '  Recommended  ',
-                  // )
                 ],
               ),
             ),
@@ -134,12 +151,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     Container(
                       child: CardWidget(),
                     ),
-                    // Container(
-                    //   child: Text('New Release'),
-                    // ),
-                    // Container(
-                    //   child: Text('Recommended'),
-                    // ),
                   ],
                 )),
             Container(
@@ -155,64 +166,83 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: List.generate(10, (index) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width / 2 -
-                        15, // Lebar setengah dari layar dengan jarak antar item
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Card(
-                          clipBehavior: Clip.antiAlias,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Image.network(
-                                'https://picsum.photos/200/320',
-                                fit: BoxFit.cover,
+            _bookList != null
+                ? Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      // children: List.generate(10, (index) {
+                      children: _bookList?.books.map((item) {
+                            return Container(
+                              width: MediaQuery.of(context).size.width / 2 -
+                                  15, // Lebar setengah dari layar dengan jarak antar item
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  InkWell(
+                                    splashColor: Colors.grey,
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  BookPage()));
+                                    },
+                                    child: Card(
+                                      clipBehavior: Clip.antiAlias,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Image.network(
+                                            // 'https://picsum.photos/200/320',
+                                            item.image,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.title,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                          textAlign: TextAlign.left,
+                                        ),
+                                        Text(
+                                          item.author,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Thinking, Fast and Slow',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                              Text(
-                                'James Clear',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                            );
+                          }).toList() ??
+                          [],
                     ),
-                  );
-                }),
-              ),
-            ),
+                  )
+                : Center(
+                    child: CircularProgressIndicator(),
+                  )
           ],
         ),
       ),

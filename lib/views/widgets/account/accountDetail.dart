@@ -34,7 +34,7 @@ class AccountDetail extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Icon(Icons.person),
-                    SizedBox(width: 10),
+                    // SizedBox(width: 10),
                     Container(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,39 +49,12 @@ class AccountDetail extends StatelessWidget {
                             ),
                             textAlign: TextAlign.left,
                           ),
-                          Text('lorem ipsum doldolore magna aliqua'),
+                          Text('12 RPL 1'),
                         ],
                       ),
                     ),
-                    Icon(Icons.edit),
-                  ],
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Icon(Icons.circle),
-                    SizedBox(width: 10),
-                    Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Deskripsi',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                          Text('lorem ipsum doldolore magna aliqua'),
-                        ],
-                      ),
-                    ),
+                    SizedBox(width: 100),
+                    SizedBox(width: 50),
                     Icon(Icons.edit),
                   ],
                 ),

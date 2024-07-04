@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pustaka/views/components/book/index.dart';
 import 'package:pustaka/views/home.dart';
 import 'package:pustaka/views/widgets/login/index.dart';
 import 'package:pustaka/data/services/auth_service.dart';
@@ -24,7 +25,6 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
           useMaterial3: true,
         ),
-        // home: HomePage(),
         home: FutureBuilder<bool>(
           future: _authService.isAuthenticated(),
           builder: (context, snapshot) {
@@ -35,14 +35,10 @@ class MyApp extends StatelessWidget {
                 ),
               );
             } else {
-              if (snapshot.hasData) {
-                return snapshot.data! ? const HomePage() : LoginScreen();
+              if (snapshot.hasData && snapshot.data == true) {
+                return const HomePage();
               } else {
-                return const Scaffold(
-                  body: Center(
-                    child: Text('Error'),
-                  ),
-                );
+                return LoginScreen();
               }
             }
           },
@@ -50,6 +46,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/home': (context) => HomePage(),
           '/login': (context) => LoginScreen(),
+          '/detail-book': (context) => BookPage()
         });
   }
 }

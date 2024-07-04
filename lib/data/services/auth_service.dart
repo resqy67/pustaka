@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:pustaka/data/models/book.dart';
 import 'package:pustaka/data/models/users.dart';
 
 class AuthService {
@@ -29,26 +28,26 @@ class AuthService {
 
     final user = User.fromJson(response.data);
     await _storage.write(key: 'token', value: user.token);
-
     return user;
   }
 
   Future<void> logout() async {
+    // final token = await _storage.read(key: ' token');
+    // print(token);
+
     await _storage.delete(key: 'token');
   }
 
-  Future<User> getUser() async {
+  Future<GetUser> getUser() async {
     final response = await _dio.get('/user');
-    return User.fromJson(response.data);
+    final data = response.data['data'];
+    print('ini datanya $data');
+    return GetUser.fromJson(data);
   }
 
   Future<bool> isAuthenticated() async {
     final token = await _storage.read(key: ' token');
-    return token != null;
-  }
-
-  Future<Book> books() async {
-    final response = await _dio.get('/books');
-    return response.data;
+    print(token);
+    return token != null && token.isNotEmpty;
   }
 }
