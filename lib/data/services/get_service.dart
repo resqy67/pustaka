@@ -44,4 +44,16 @@ class GetService {
       throw Exception('failed to load book');
     }
   }
+
+  Future<Map<String, dynamic>> checkAvailable(
+      {required String bookUuid, required String userId}) async {
+    try {
+      final response = await _dio.get('/loan/check/$bookUuid/$userId');
+      return response.data;
+    } catch (e, stacktrace) {
+      print('Error: $e');
+      print('Stacktrace: $stacktrace');
+      throw Exception('Failed to check availability');
+    }
+  }
 }

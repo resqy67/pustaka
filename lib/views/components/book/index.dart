@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:pustaka/data/models/users.dart';
 import 'package:pustaka/data/services/get_service.dart';
+import 'package:pustaka/data/services/auth_service.dart';
+import 'package:pustaka/data/services/post_service.dart';
 import 'package:pustaka/data/models/book.dart';
 import 'package:pustaka/views/components/book/pdfViewer.dart';
 import 'package:pustaka/data/services/pdf_service.dart';
+// import 'package:dio/dio.dart';
 
 class BookPage extends StatefulWidget {
   final String bookUuid;
@@ -15,12 +19,19 @@ class BookPage extends StatefulWidget {
 
 class _BookPageState extends State<BookPage> {
   final GetService _getService = GetService();
+  final AuthService _authService = AuthService();
+  final PostService _postService = PostService();
   Book? _book;
+  GetUser? _getUser;
+  bool isAvailable = false;
+  bool isBorrowedByUser = false;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _fetchBook();
+    _fetchUser();
   }
 
   void _fetchBook() async {
@@ -39,11 +50,94 @@ class _BookPageState extends State<BookPage> {
       );
     }
   }
-  // List<String> categoryNames =
-  //     _book!.categories.map((category) => category['name']).toList();
+
+  void _fetchUser() async {
+    try {
+      GetUser getUser = await _authService.getUser();
+      setState(() {
+        _getUser = getUser;
+      });
+      final response = await _getService.checkAvailable(
+        bookUuid: widget.bookUuid,
+        userId: _getUser!.id,
+      );
+      if (response['status'] == 'success') {
+        setState(() {
+          isAvailable = true;
+          isBorrowedByUser = false;
+          isLoading = false;
+        });
+      } else if (response['status'] == 'info') {
+        setState(() {
+          isAvailable = false;
+          isBorrowedByUser = true;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isAvailable = false;
+          isBorrowedByUser = false;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _postLoan() async {
+    try {
+      final response = await _postService.loanStore(
+        bookUuid: widget.bookUuid,
+        userId: _getUser!.id,
+      );
+      if (response['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Buku berhasil dipinjam'),
+          ),
+        );
+        setState(() {
+          isAvailable = false;
+          isBorrowedByUser = true;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal meminjam buku'),
+          ),
+        );
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal meminjam buku $e'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    String buttonText;
+    VoidCallback? onPressed;
+    if (isAvailable) {
+      buttonText = 'Pinjam';
+      onPressed = _postLoan;
+    } else if (isBorrowedByUser) {
+      buttonText = 'Baca Buku';
+      onPressed = () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    PdfScreen(bookUuid: _book!.uuid, pdfPath: _book!.filepdf)));
+      };
+    } else {
+      buttonText = 'Sudah Dipinjam';
+      onPressed = null;
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text('Book Page'),
@@ -295,25 +389,8 @@ class _BookPageState extends State<BookPage> {
                       style: ElevatedButton.styleFrom(
                         fixedSize: Size(300, 50),
                       ),
-                      onPressed: () async {
-                        // String pdfPath =
-                        //     await downloadPdf(_book!.uuid, _book!.filepdf);
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) =>
-                        //         PdfViewer(path: _book!.filepdf),
-                        //   ),
-                        // );
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => PdfScreen(
-                                  bookUuid: _book!.uuid,
-                                  pdfPath: _book!.filepdf)),
-                        );
-                      },
-                      child: Text('Pinjam Buku')),
+                      onPressed: onPressed,
+                      child: Text(buttonText)),
                   SizedBox(height: 20)
                 ],
               ),
