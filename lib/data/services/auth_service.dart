@@ -46,7 +46,7 @@ class AuthService {
   }
 
   Future<bool> isAuthenticated() async {
-    final token = await _storage.read(key: ' token');
+    final token = await _storage.read(key: 'token');
     print(token);
     return token != null && token.isNotEmpty;
   }

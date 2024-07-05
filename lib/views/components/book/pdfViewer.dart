@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -14,48 +16,63 @@ class PdfScreen extends StatefulWidget {
 }
 
 class _PdfScreenState extends State<PdfScreen> {
-  late PDFViewController _pdfViewController;
+  PDFViewController? _pdfViewController;
   int _currentPage = 0;
   int _totalPages = 0;
-  late String _pdfPath = '';
+  String? _pdfPath;
   bool _isLoading = true;
   final storage = FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
-    _loadLastPage();
-    _loadPdfPath();
+    _initializePdf();
   }
 
-  Future<void> _loadPdfPath() async {
-    String _filePdf = await downloadPdf(widget.bookUuid, widget.pdfPath);
-    setState(() {
-      _pdfPath = _filePdf;
-      _isLoading = false;
-    });
-  }
-
-  Future<void> _loadLastPage() async {
+  Future<void> _initializePdf() async {
     try {
-      String? lastPageStr = await storage.read(key: 'book_${widget.bookUuid}');
-      int lastPage = int.parse(lastPageStr ?? "0");
+      await _loadLastPage();
+      await _loadPdfPath();
       setState(() {
-        _currentPage = lastPage;
         _isLoading = false;
       });
     } catch (e) {
-      print('Failed to load last page: $e');
+      print('Failed to initialize PDF: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
-  Future<void> _saveLastPage(int page) async {
+  Future<void> _loadPdfPath() async {
     try {
-      await storage.write(
-          key: 'book_${widget.bookUuid}', value: page.toString());
+      String _filePdf = await downloadPdf(widget.bookUuid, widget.pdfPath);
+      setState(() {
+        _pdfPath = _filePdf;
+      });
     } catch (e) {
-      print('Failed to save last page: $e');
+      print('Failed to load PDF path: $e');
+      throw e;
     }
+  }
+
+  Future<void> _loadLastPage() async {
+    String? lastRead = await storage.read(key: 'book_${widget.bookUuid}');
+    setState(() {
+      _currentPage = lastRead != null ? int.parse(lastRead) : 0;
+    });
+    print('Loaded page: $_currentPage');
+  }
+
+  Future<void> _saveLastPage(int page) async {
+    await storage.write(key: 'book_${widget.bookUuid}', value: page.toString());
+    print('Saved last page: $page');
+  }
+
+  @override
+  void dispose() {
+    _saveLastPage(_currentPage);
+    super.dispose();
   }
 
   @override
@@ -66,32 +83,48 @@ class _PdfScreenState extends State<PdfScreen> {
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : PDFView(
-              filePath: _pdfPath,
-              autoSpacing: true,
-              pageFling: true,
-              pageSnap: true,
-              onRender: (pages) {
-                setState(() {
-                  _totalPages = pages!;
-                  _isLoading = false;
-                });
-              },
-              onViewCreated: (PDFViewController pdfViewController) async {
-                _pdfViewController = pdfViewController;
-                try {
-                  await _pdfViewController.setPage(_currentPage);
-                } catch (e) {
-                  print('Failed to set page: $e');
-                }
-              },
-              onPageChanged: (int? page, int? total) {
-                setState(() {
-                  _currentPage = page ?? 0;
-                });
-                _saveLastPage(_currentPage);
-              },
-            ),
+          : _pdfPath == null
+              ? Center(child: Text("Failed to load PDF"))
+              : Stack(children: [
+                  PDFView(
+                    filePath: _pdfPath!,
+                    // gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+                    //   Factory<OneSequenceGestureRecognizer>(
+                    //     () => EagerGestureRecognizer(),
+                    //   ),
+                    // ].toSet(),
+                    autoSpacing: true,
+                    pageFling: true,
+                    pageSnap: true,
+                    preventLinkNavigation: true,
+                    onRender: (pages) {
+                      setState(() {
+                        _totalPages = pages!;
+                      });
+                    },
+                    onViewCreated: (PDFViewController pdfViewController) async {
+                      _pdfViewController = pdfViewController;
+                      if (_currentPage != 0) {
+                        await _pdfViewController?.setPage(_currentPage);
+                      }
+                    },
+                    onPageChanged: (int? page, int? total) {
+                      setState(() {
+                        _currentPage = page!;
+                      });
+                      _saveLastPage(_currentPage);
+                    },
+                    defaultPage: _currentPage,
+                  ),
+                  Positioned(
+                    bottom: 10,
+                    right: 10,
+                    child: Text(
+                      '$_currentPage/$_totalPages',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                ]),
     );
   }
 }
