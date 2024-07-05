@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pustaka/views/components/book/gridBooks.dart';
+// import 'package:pustaka/views/components/book/gridBooks.dart';
 import 'package:pustaka/views/components/book/index.dart';
 import 'package:pustaka/views/components/book/loan/index.dart';
 import 'package:pustaka/data/services/get_service.dart';
 import 'package:pustaka/data/models/book.dart';
+import 'package:pustaka/data/models/loan.dart';
 
 class LibraryScreen extends StatefulWidget {
   @override
@@ -15,12 +16,14 @@ class _LibraryScreenState extends State<LibraryScreen>
   late TabController _tabController;
   final _getService = GetService();
   BookList? _bookList;
+  LoanList? _loanList;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _fecthBooks();
+    _fetchLoans();
   }
 
   @override
@@ -36,12 +39,28 @@ class _LibraryScreenState extends State<LibraryScreen>
       setState(() {
         _bookList = bookList;
       });
-      print(bookList);
+      // print(_bookList!.books);
     } catch (e) {
       print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('failed to load books $e'),
+        ),
+      );
+    }
+  }
+
+  void _fetchLoans() async {
+    try {
+      LoanList loanList = await _getService.loan();
+      setState(() {
+        _loanList = loanList;
+      });
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('failed to load loans $e'),
         ),
       );
     }
@@ -201,8 +220,9 @@ class _LibraryScreenState extends State<LibraryScreen>
                                 ),
                               );
                             },
-                            childCount: _bookList!.books
-                                .length, // Ganti jumlah item sesuai kebutuhan
+                            childCount: 10,
+                            // childCount: _bookList!.books
+                            //     .length, // Ganti jumlah item sesuai kebutuhan
                           ),
                         ),
                       ],
@@ -210,9 +230,19 @@ class _LibraryScreenState extends State<LibraryScreen>
                   : Center(
                       child: CircularProgressIndicator(),
                     )),
-          // Konten untuk tab lainnya
-          // gridBooks(context),
-          loanBooks(context),
+          if (_loanList != null)
+            loanBooks(
+              context,
+              _loanList!,
+            )
+          else
+            Center(
+              child: CircularProgressIndicator(),
+            ),
+          // _loanList != null
+          //  loanBooks(context, _loanList!)
+          //     : Center(child: CircularProgressIndicator()),
+          // loanBooks(context),
         ],
       ),
     );

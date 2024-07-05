@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pustaka/data/models/book.dart';
+import 'package:pustaka/data/models/loan.dart';
 
 class GetService {
   final Dio _dio = Dio(BaseOptions(baseUrl: 'http://id3.labkom.us:4148/api'));
@@ -54,6 +55,19 @@ class GetService {
       print('Error: $e');
       print('Stacktrace: $stacktrace');
       throw Exception('Failed to check availability');
+    }
+  }
+
+  Future<LoanList> loan() async {
+    try {
+      final response = await _dio.get('/loan/user');
+      final data = response.data['data'];
+      print('ini data loan list $data');
+      return LoanList.fromJson(data);
+    } catch (e, stacktrace) {
+      print('Error: $e');
+      print('Stacktrace: $stacktrace');
+      throw Exception('failed to loan book ssssss');
     }
   }
 }
