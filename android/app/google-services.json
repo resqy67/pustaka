@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "294654348592",
+    "project_id": "push-library-7396d",
+    "storage_bucket": "push-library-7396d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:294654348592:android:5148283e6ea2a8da388cf5",
+        "android_client_info": {
+          "package_name": "com.example.pustaka"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCr5aPYfxFro_6aUli5TYFNdmkGkrIB-UI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

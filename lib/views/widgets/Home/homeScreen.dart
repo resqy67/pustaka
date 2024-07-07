@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pustaka/views/components/book/index.dart';
 import 'package:pustaka/views/components/card.dart';
 import 'package:pustaka/data/services/get_service.dart';
+import 'package:pustaka/data/services/post_service.dart';
 import 'package:pustaka/data/models/book.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,12 +18,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late ScrollController _scrollController;
   bool isLoading = false;
 
+  void _postToken() async {
+    final _postService = PostService();
+    _postService.updateTokenFcm();
+  }
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _scrollController = ScrollController()..addListener(_scrollListener);
     _fetchBooks();
+    _postToken();
   }
 
   @override

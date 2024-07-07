@@ -33,4 +33,23 @@ class PostService {
       throw Exception('Failed to loan book');
     }
   }
+
+  // update tokenFcm in user
+  Future<Map<String, dynamic>> updateTokenFcm() async {
+    final tokenFcm = await _storage.read(key: 'tokenFcm');
+    print('Token FCM: $tokenFcm');
+    if (tokenFcm == null) {
+      return {'message': 'Token FCM not found'};
+    }
+    try {
+      final response = await _dio.post('/user/update-token-fcm', data: {
+        'token_fcm': tokenFcm,
+      });
+      return response.data;
+    } catch (e, stacktrace) {
+      print('Error: $e');
+      print('Stacktrace: $stacktrace');
+      throw Exception('Failed to update token fcm');
+    }
+  }
 }
