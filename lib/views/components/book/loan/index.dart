@@ -61,7 +61,8 @@ Widget loanBooks(BuildContext context, LoanList? loanList) {
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.red,
+                                    color: days > 3 ? Colors.green : Colors.red,
+                                    // color: Colors.red,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(

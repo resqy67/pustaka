@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 1, vsync: this);
     _scrollController = ScrollController()..addListener(_scrollListener);
     _fetchBooks();
     _postToken();
@@ -155,9 +155,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Tab(
                   text: '  Terbaru  ',
                 ),
-                Tab(
-                  text: '  Disarankan  ',
-                ),
+                // Tab(
+                //   text: '  Disarankan  ',
+                // ),
               ],
             ),
           ),
@@ -173,18 +173,46 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: [
-                      CardWidget(),
-                      CardWidget(),
-                      CardWidget(),
-                      CardWidget(),
-                      CardWidget(),
-                    ],
+                    children: _bookList.take(3).map((book) {
+                      return CardWidget(
+                        title: book.title.length > 60
+                            ? book.title.substring(0, 40) + "..."
+                            : book.title,
+                        description: book.description.length > 50
+                            ? book.description.substring(0, 50) + "..."
+                            : book.description,
+                        rating: 4.5, // Add actual rating if available
+                        imageUrl: 'https://picsum.photos/200/300',
+                        bookUuid: book.uuid,
+                      );
+                    }).toList(),
                   ),
+                  // CardWidget(
+                  //   title: 'Thinking, Fast and Slow',
+                  //   description:
+                  //       'Buku ini membahas tentang cara kerja otak manusia dalam mengambil keputusan.',
+                  //   rating: 4.5,
+                  //   imageUrl: 'https://picsum.photos/200/300',
+                  //   bookUuid: '1',
+                  // ),
+                  // CardWidget(
+                  //   title: 'Thinking, Fast and Slow',
+                  //   description:
+                  //       'Buku ini membahas tentang cara kerja otak manusia dalam mengambil keputusan.',
+                  //   rating: 4.5,
+                  //   imageUrl: 'https://picsum.photos/200/300',
+                  //   bookUuid: '1',
+                  // ),
+                  // CardWidget(),
+                  // CardWidget(),
+                  // CardWidget(),
+                  // CardWidget(),
+                  // ],
                 ),
-                Container(
-                  child: CardWidget(),
-                ),
+                // ),
+                // Container(
+                //   child: CardWidget(),
+                // ),
               ],
             ),
           ),
