@@ -1,11 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pustaka/views/components/book/index.dart';
 import 'package:pustaka/views/components/card.dart';
 import 'package:pustaka/data/services/get_service.dart';
 import 'package:pustaka/data/models/book.dart';
-// import 'package:pustaka/controller/TabController.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -15,37 +12,54 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController;
   final _getService = GetService();
-  BookList? _bookList;
+  int page = 1;
+  List<Book> _bookList = [];
+  late ScrollController _scrollController;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-
     _tabController = TabController(length: 2, vsync: this);
-    _fecthBooks();
+    _scrollController = ScrollController()..addListener(_scrollListener);
+    _fetchBooks();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _fecthBooks() async {
+  void _fetchBooks() async {
+    if (isLoading) return;
+    setState(() {
+      isLoading = true;
+    });
     try {
-      // BookList bookList = await _getService.books();
-      BookList bookList = await _getService.books();
+      BookList bookList = await _getService.books(page.toString());
       setState(() {
-        _bookList = bookList;
+        _bookList.addAll(bookList.books);
+        page++;
       });
-      print(_bookList);
     } catch (e) {
       print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('failed to load books $e'),
+          content: Text('Failed to load books: $e'),
         ),
       );
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _fetchBooks();
     }
   }
 
@@ -72,16 +86,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             onPressed: () {},
           ),
           IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.notifications,
-                color: Colors.black38,
-                size: 30,
-              ))
+            onPressed: () {},
+            icon: Icon(
+              Icons.notifications,
+              color: Colors.black38,
+              size: 30,
+            ),
+          )
         ],
       ),
       body: SingleChildScrollView(
-        // scrollDirection: Axis.vertical,
+        controller: _scrollController,
         child: Column(
           children: <Widget>[
             Container(
@@ -131,28 +146,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               height: 20,
             ),
             Container(
-                width: 340,
-                height: 200,
-                child: TabBarView(
-                  controller: _tabController,
-                  children: <Widget>[
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          CardWidget(),
-                          CardWidget(),
-                          CardWidget(),
-                          CardWidget(),
-                          CardWidget(),
-                        ],
-                      ),
+              width: 340,
+              height: 200,
+              child: TabBarView(
+                controller: _tabController,
+                children: <Widget>[
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        CardWidget(),
+                        CardWidget(),
+                        CardWidget(),
+                        CardWidget(),
+                        CardWidget(),
+                      ],
                     ),
-                    Container(
-                      child: CardWidget(),
-                    ),
-                  ],
-                )),
+                  ),
+                  Container(
+                    child: CardWidget(),
+                  ),
+                ],
+              ),
+            ),
             Container(
               alignment: Alignment.centerLeft,
               margin: EdgeInsets.only(top: 20, left: 25, bottom: 10),
@@ -166,91 +182,84 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            _bookList != null
+            _bookList.isNotEmpty
                 ? Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Wrap(
                       spacing: 10,
                       runSpacing: 10,
-                      // children: List.generate(10, (index) {
-                      children: _bookList?.books.map((item) {
-                            return Container(
-                              width: MediaQuery.of(context).size.width / 2 -
-                                  15, // Lebar setengah dari layar dengan jarak antar item
-                              height: 300,
-                              child: Card(
-                                color: Colors.white,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    InkWell(
-                                      splashColor: Colors.grey,
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => BookPage(
-                                                    bookUuid: item.uuid)));
-                                      },
-                                      child: Card(
-                                        elevation: 0,
-                                        // clipBehavior: Clip.antiAlias,
-                                        // shape: RoundedRectangleBorder(
-                                        //     borderRadius:
-                                        //         BorderRadius.circular(10)),
-                                        child: Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            Image.network(
-                                              // 'https://picsum.photos/200/320',
-                                              item.image,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ],
+                      children: _bookList.map((item) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width / 2 - 15,
+                          height: 300,
+                          child: Card(
+                            color: Colors.white,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  splashColor: Colors.grey,
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                BookPage(bookUuid: item.uuid)));
+                                  },
+                                  child: Card(
+                                    elevation: 0,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Image.network(
+                                          item.image,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.title.length > 60
+                                            ? item.title.substring(0, 55) +
+                                                "..."
+                                            : item.title,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                      Text(
+                                        item.author,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w400,
                                         ),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item.title.length > 60
-                                                ? item.title.substring(0, 55) +
-                                                    "..."
-                                                : item.title,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black,
-                                            ),
-                                            textAlign: TextAlign.left,
-                                          ),
-                                          Text(
-                                            item.author,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          }).toList() ??
-                          [],
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     ),
                   )
                 : Center(
                     child: CircularProgressIndicator(),
-                  )
+                  ),
+            if (isLoading) Center(child: CircularProgressIndicator())
           ],
         ),
       ),

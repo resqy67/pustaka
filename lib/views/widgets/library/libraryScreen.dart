@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:pustaka/views/components/book/gridBooks.dart';
 import 'package:pustaka/views/components/book/index.dart';
 import 'package:pustaka/views/components/book/loan/index.dart';
 import 'package:pustaka/data/services/get_service.dart';
@@ -15,31 +14,38 @@ class _LibraryScreenState extends State<LibraryScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   final _getService = GetService();
+  int page = 1;
   BookList? _bookList;
   LoanList? _loanList;
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _fecthBooks();
+    _fetchBooks();
     _fetchLoans();
+    _scrollController.addListener(_scrollListener);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _fecthBooks() async {
+  void _fetchBooks() async {
     try {
-      // BookList bookList = await _getService.books();
-      BookList bookList = await _getService.books();
+      BookList bookList = await _getService.books(page.toString());
       setState(() {
-        _bookList = bookList;
+        if (_bookList == null) {
+          _bookList = bookList;
+        } else {
+          _bookList!.books.addAll(bookList.books);
+        }
       });
-      // print(_bookList!.books);
     } catch (e) {
       print(e);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,6 +69,19 @@ class _LibraryScreenState extends State<LibraryScreen>
           content: Text('failed to load loans $e'),
         ),
       );
+    }
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent &&
+        !_isLoadingMore) {
+      setState(() {
+        _isLoadingMore = true;
+        page++;
+        _fetchBooks();
+        _isLoadingMore = false;
+      });
     }
   }
 
@@ -98,15 +117,8 @@ class _LibraryScreenState extends State<LibraryScreen>
           labelColor: Colors.green[600],
           unselectedLabelColor: Colors.black38,
           tabs: <Widget>[
-            Tab(
-              text: '  Rekomendasi  ',
-            ),
-            // Tab(
-            //   text: '  Lihat Buku  ',
-            // ),
-            Tab(
-              text: '  PinjamanKu  ',
-            )
+            Tab(text: '  Rekomendasi  '),
+            Tab(text: '  PinjamanKu  '),
           ],
         ),
         actions: <Widget>[
@@ -132,104 +144,99 @@ class _LibraryScreenState extends State<LibraryScreen>
         controller: _tabController,
         children: <Widget>[
           Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: _bookList != null
-                  ? CustomScrollView(
-                      slivers: <Widget>[
-                        SliverGrid(
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                            mainAxisExtent:
-                                MediaQuery.of(context).size.width - 50,
-                          ),
-                          delegate: SliverChildBuilderDelegate(
-                            (BuildContext context, index) {
-                              Book book = _bookList!.books[index];
-                              return InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => BookPage(
-                                        bookUuid: book.uuid,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Card(
-                                  color: Colors.white,
-                                  child: Container(
-                                    // width:
-                                    //     MediaQuery.of(context).size.width / 2 -
-                                    //         15,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Card(
-                                          elevation: 0,
-                                          // clipBehavior: Clip.antiAlias,
-                                          // shape: RoundedRectangleBorder(
-                                          //     borderRadius:
-                                          //         BorderRadius.circular(10)),
-                                          child: Stack(
-                                            alignment: Alignment.center,
-                                            children: [
-                                              Image.network(
-                                                book.image,
-                                                // 'https://picsum.photos/200/320',
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                // 'Thinking, Fast and Slow',
-                                                book.title,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
-                                                ),
-                                                textAlign: TextAlign.left,
-                                              ),
-                                              Text(
-                                                // 'James Clear',
-                                                book.author,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+            padding: const EdgeInsets.all(10.0),
+            child: _bookList != null
+                ? CustomScrollView(
+                    controller: _scrollController,
+                    slivers: <Widget>[
+                      SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          mainAxisExtent:
+                              MediaQuery.of(context).size.width - 50,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (BuildContext context, index) {
+                            Book book = _bookList!.books[index];
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookPage(
+                                      bookUuid: book.uuid,
                                     ),
                                   ),
+                                );
+                              },
+                              child: Card(
+                                color: Colors.white,
+                                child: Container(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Card(
+                                        elevation: 0,
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Image.network(
+                                              book.image,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              book.title,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+                                            Text(
+                                              book.author,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              );
-                            },
-                            childCount: 10,
-                            // childCount: _bookList!.books
-                            //     .length, // Ganti jumlah item sesuai kebutuhan
+                              ),
+                            );
+                          },
+                          childCount: _bookList!.books.length,
+                        ),
+                      ),
+                      if (_isLoadingMore)
+                        SliverToBoxAdapter(
+                          child: Center(
+                            child: CircularProgressIndicator(),
                           ),
                         ),
-                      ],
-                    )
-                  : Center(
-                      child: CircularProgressIndicator(),
-                    )),
+                    ],
+                  )
+                : Center(
+                    child: CircularProgressIndicator(),
+                  ),
+          ),
           if (_loanList != null)
             loanBooks(
               context,
@@ -239,18 +246,8 @@ class _LibraryScreenState extends State<LibraryScreen>
             Center(
               child: CircularProgressIndicator(),
             ),
-          // _loanList != null
-          //  loanBooks(context, _loanList!)
-          //     : Center(child: CircularProgressIndicator()),
-          // loanBooks(context),
         ],
       ),
     );
   }
 }
-
-// void main() {
-//   runApp(MaterialApp(
-//     home: LibraryScreen(),
-//   ));
-// }

@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:pustaka/data/services/pdf_service.dart';
 
 class PdfScreen extends StatefulWidget {
@@ -21,7 +20,9 @@ class _PdfScreenState extends State<PdfScreen> {
   int _totalPages = 0;
   String? _pdfPath;
   bool _isLoading = true;
+  bool _isNightMode = false;
   final storage = FlutterSecureStorage();
+  Key _pdfViewKey = UniqueKey();
 
   @override
   void initState() {
@@ -85,46 +86,90 @@ class _PdfScreenState extends State<PdfScreen> {
           ? Center(child: CircularProgressIndicator())
           : _pdfPath == null
               ? Center(child: Text("Failed to load PDF"))
-              : Stack(children: [
-                  PDFView(
-                    filePath: _pdfPath!,
-                    // gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-                    //   Factory<OneSequenceGestureRecognizer>(
-                    //     () => EagerGestureRecognizer(),
-                    //   ),
-                    // ].toSet(),
-                    autoSpacing: true,
-                    pageFling: true,
-                    pageSnap: true,
-                    preventLinkNavigation: true,
-                    onRender: (pages) {
-                      setState(() {
-                        _totalPages = pages!;
-                      });
-                    },
-                    onViewCreated: (PDFViewController pdfViewController) async {
-                      _pdfViewController = pdfViewController;
-                      if (_currentPage != 0) {
-                        await _pdfViewController?.setPage(_currentPage);
-                      }
-                    },
-                    onPageChanged: (int? page, int? total) {
-                      setState(() {
-                        _currentPage = page!;
-                      });
-                      _saveLastPage(_currentPage);
-                    },
-                    defaultPage: _currentPage,
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    right: 10,
-                    child: Text(
-                      '$_currentPage/$_totalPages',
-                      style: TextStyle(fontSize: 20),
+              : Stack(
+                  children: [
+                    PDFView(
+                      key: _pdfViewKey,
+                      filePath: _pdfPath!,
+                      autoSpacing: true,
+                      pageFling: true,
+                      pageSnap: true,
+                      preventLinkNavigation: true,
+                      nightMode: _isNightMode,
+                      onRender: (pages) {
+                        setState(() {
+                          _totalPages = pages!;
+                        });
+                      },
+                      onViewCreated:
+                          (PDFViewController pdfViewController) async {
+                        _pdfViewController = pdfViewController;
+                        if (_currentPage != 0) {
+                          await _pdfViewController?.setPage(_currentPage);
+                        }
+                      },
+                      onPageChanged: (int? page, int? total) {
+                        setState(() {
+                          _currentPage = page!;
+                        });
+                        _saveLastPage(_currentPage);
+                      },
+                      defaultPage: _currentPage,
                     ),
-                  ),
-                ]),
+                    _isNightMode
+                        ? Positioned(
+                            bottom: 10,
+                            left: 10,
+                            child: Text(
+                              '${_currentPage + 1}/${_totalPages}',
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                            ),
+                          )
+                        : Positioned(
+                            bottom: 10,
+                            left: 10,
+                            child: Text(
+                              '${_currentPage + 1}/${_totalPages}',
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.black),
+                            ),
+                          )
+                  ],
+                ),
+      floatingActionButton: SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        backgroundColor: Colors.green,
+        children: [
+          SpeedDialChild(
+            child: Icon(Icons.bookmark),
+            backgroundColor: Colors.red,
+            label: 'Bookmark',
+            onTap: () {
+              _saveLastPage(_currentPage);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Page ${_currentPage + 1} bookmarked')),
+              );
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.brightness_6),
+            backgroundColor: Colors.blue,
+            label: 'Night Mode',
+            onTap: () {
+              setState(() {
+                _isNightMode = !_isNightMode;
+                _pdfViewKey = UniqueKey();
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(
+                        'Night mode ${_isNightMode ? 'enabled' : 'disabled'}')),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

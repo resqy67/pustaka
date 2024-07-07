@@ -21,8 +21,6 @@ class _AccountScreenState extends State<AccountScreen> {
   void _fetchUser() async {
     try {
       GetUser getUser = await _authService.getUser();
-      // final users = await _authService.getUser();
-      // print('api user: $users');
       setState(() {
         _getUser = getUser;
       });
@@ -35,73 +33,74 @@ class _AccountScreenState extends State<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'User!',
-            style: TextStyle(
-              fontSize: 20,
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+      appBar: AppBar(
+        // backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Profile',
+          style: TextStyle(
+            fontSize: 20,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
         ),
-        body: SingleChildScrollView(
-            child: Column(
-          children: <Widget>[
-            Container(
-              child: Row(
-                children: [
-                  if (_getUser != null)
-                    Container(
-                      margin: EdgeInsets.all(20),
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundImage: NetworkImage(_getUser!.avatar),
-                        // NetworkImage('https://picsum.photos/200/320'),
-                      ),
-                    ),
-                  Container(
-                    margin: EdgeInsets.only(top: 25),
-                    width: MediaQuery.of(context).size.width * 0.6,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        if (_getUser != null)
-                          Text(
-                            _getUser!.description,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        SizedBox(height: 10),
-                        Text(
-                          '35 / 60 Buku dibaca',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          textAlign: TextAlign.left,
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+          child: Column(
+            children: <Widget>[
+              if (_getUser != null)
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: NetworkImage(_getUser!.avatar),
+                ),
+              SizedBox(height: 20),
+              if (_getUser != null)
+                Text(
+                  _getUser!.name,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              SizedBox(height: 5),
+              if (_getUser != null)
+                Text(
+                  _getUser!.description,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w400,
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              SizedBox(height: 40),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                elevation: 5,
                 child: ListTile(
-                  title: Text('Akun'),
+                  title: Text(
+                    'Akun',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   subtitle: Text('Kelola akun kamu'),
-                  leading: Icon(Icons.account_circle),
+                  leading: Icon(
+                    Icons.account_circle,
+                    color: Colors.blueAccent,
+                  ),
+                  trailing: Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
@@ -110,23 +109,36 @@ class _AccountScreenState extends State<AccountScreen> {
                   },
                 ),
               ),
-            ),
-            SizedBox(height: 5),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
+              SizedBox(height: 10),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                elevation: 5,
                 child: ListTile(
-                  title: Text('Logout'),
+                  title: Text(
+                    'Logout',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   subtitle: Text('Logout from your account'),
-                  leading: Icon(Icons.logout),
+                  leading: Icon(
+                    Icons.logout,
+                    color: Colors.redAccent,
+                  ),
+                  trailing: Icon(Icons.arrow_forward_ios),
                   onTap: () async {
                     await _authService.logout();
                     Navigator.pushReplacementNamed(context, '/login');
                   },
                 ),
               ),
-            ),
-          ],
-        )));
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

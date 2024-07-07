@@ -21,9 +21,10 @@ class GetService {
     );
   }
 
-  Future<BookList> books() async {
+  Future<BookList> books(String page) async {
     try {
-      final response = await _dio.get('/books');
+      final response =
+          await _dio.get('/books', queryParameters: {'page': page});
       // final data = response.data['data']['data'];
       // // print(data);
       return BookList.fromJson(response.data);

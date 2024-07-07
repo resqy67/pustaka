@@ -36,7 +36,6 @@ class _BookPageState extends State<BookPage> {
 
   void _fetchBook() async {
     try {
-      // print('fetching book ${widget.bookUuid}');
       Book book = await _getService.book(widget.bookUuid);
       setState(() {
         _book = book;
