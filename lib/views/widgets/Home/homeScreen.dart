@@ -187,32 +187,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       );
                     }).toList(),
                   ),
-                  // CardWidget(
-                  //   title: 'Thinking, Fast and Slow',
-                  //   description:
-                  //       'Buku ini membahas tentang cara kerja otak manusia dalam mengambil keputusan.',
-                  //   rating: 4.5,
-                  //   imageUrl: 'https://picsum.photos/200/300',
-                  //   bookUuid: '1',
-                  // ),
-                  // CardWidget(
-                  //   title: 'Thinking, Fast and Slow',
-                  //   description:
-                  //       'Buku ini membahas tentang cara kerja otak manusia dalam mengambil keputusan.',
-                  //   rating: 4.5,
-                  //   imageUrl: 'https://picsum.photos/200/300',
-                  //   bookUuid: '1',
-                  // ),
-                  // CardWidget(),
-                  // CardWidget(),
-                  // CardWidget(),
-                  // CardWidget(),
-                  // ],
                 ),
-                // ),
-                // Container(
-                //   child: CardWidget(),
-                // ),
               ],
             ),
           ),
