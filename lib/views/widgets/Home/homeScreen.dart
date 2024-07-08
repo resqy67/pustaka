@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:pustaka/data/models/users.dart';
+import 'package:pustaka/data/services/auth_service.dart';
 import 'package:pustaka/views/components/book/index.dart';
 import 'package:pustaka/views/components/card.dart';
 import 'package:pustaka/data/services/get_service.dart';
 import 'package:pustaka/data/services/post_service.dart';
 import 'package:pustaka/data/models/book.dart';
+import 'package:pustaka/views/components/search.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -13,7 +17,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController;
   final _getService = GetService();
+  final AuthService _authService = AuthService();
   int page = 1;
+  GetUser? _getUser;
   List<Book> _bookList = [];
   List<Book> _searchResults = [];
   late ScrollController _scrollController;
@@ -33,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _fetchBooks();
     _postToken();
     _searchController.addListener(_onSearchChanged);
+    _fetchUser();
   }
 
   @override
@@ -51,6 +58,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               .contains(_searchController.text.toLowerCase()))
           .toList();
     });
+  }
+
+  void _fetchUser() async {
+    try {
+      GetUser getUser = await _authService.getUser();
+      setState(() {
+        _getUser = getUser;
+      });
+      print('ini nama usesrnya ${_getUser?.name}');
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('failed to get user')));
+    }
   }
 
   void _fetchBooks() async {
@@ -89,14 +109,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Good Morning, User!',
-          style: TextStyle(
-            fontSize: 20,
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+        title: Column(
+          children: [
+            _getUser != null
+                ? Text(
+                    'Hallo, ${_getUser!.name}',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  )
+                : Text('Hallo')
+          ],
         ),
         actions: <Widget>[
           IconButton(
@@ -171,23 +197,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               controller: _tabController,
               children: <Widget>[
                 SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: _bookList.take(3).map((book) {
-                      return CardWidget(
-                        title: book.title.length > 60
-                            ? book.title.substring(0, 40) + "..."
-                            : book.title,
-                        description: book.description.length > 50
-                            ? book.description.substring(0, 50) + "..."
-                            : book.description,
-                        rating: 4.5, // Add actual rating if available
-                        imageUrl: 'https://picsum.photos/200/300',
-                        bookUuid: book.uuid,
-                      );
-                    }).toList(),
-                  ),
-                ),
+                    scrollDirection: Axis.horizontal,
+                    child: _bookList == null || _bookList.isNotEmpty
+                        ? Row(
+                            children: _bookList.take(3).map((book) {
+                              return CardWidget(
+                                title: book.title.length > 60
+                                    ? book.title.substring(0, 60) + "..."
+                                    : book.title,
+                                description: book.description.length > 50
+                                    ? book.description.substring(0, 50) + "..."
+                                    : book.description,
+                                author: book.author.length > 18
+                                    ? book.author.substring(0, 18) + "..."
+                                    : book.author,
+                                year: book.year,
+                                // rating: 4.5, // Add actual rating if available
+                                imageUrl: 'https://picsum.photos/200/300',
+                                bookUuid: book.uuid,
+                              );
+                            }).toList(),
+                          )
+                        : Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
+                              width: 600,
+                              height: 400,
+                              color: Colors.grey[300],
+                            ))),
               ],
             ),
           ),
@@ -276,92 +314,50 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     }).toList(),
                   ),
                 )
-              : Center(
-                  child: CircularProgressIndicator(),
-                ),
+              // : Center(
+              //     child: CircularProgressIndicator(),
+              //   ),
+              : Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width / 2 - 15,
+                          height: 300,
+                          child: Card(
+                            color: Colors.grey[300],
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width / 2 - 15,
+                          height: 300,
+                          child: Card(
+                            color: Colors.grey[300],
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width / 2 - 15,
+                          height: 300,
+                          child: Card(color: Colors.grey[300]),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width / 2 - 15,
+                          height: 300,
+                          child: Card(
+                            color: Colors.grey[300],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
           if (isLoading) Center(child: CircularProgressIndicator())
         ]),
       ),
-    );
-  }
-}
-
-class BookSearchDelegate extends SearchDelegate {
-  final List<Book> books;
-
-  BookSearchDelegate(this.books);
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    final results = books
-        .where((book) => book.title.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
-    return ListView.builder(
-      itemCount: results.length,
-      itemBuilder: (context, index) {
-        final book = results[index];
-        return ListTile(
-          title: Text(book.title),
-          subtitle: Text(book.author),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BookPage(bookUuid: book.uuid),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestions = books
-        .where((book) => book.title.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final book = suggestions[index];
-        return ListTile(
-          title: Text(book.title),
-          subtitle: Text(book.author),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BookPage(bookUuid: book.uuid),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }

@@ -78,10 +78,15 @@ void main() async {
   });
 
   // Mendapatkan token FCM
-  final tokenFcm = await FirebaseMessaging.instance.getToken();
-  print('Token FCM: $tokenFcm');
-
-  await _storage.write(key: 'tokenFcm', value: tokenFcm);
+  final tokenFcm = await _storage.read(key: 'tokenFcm');
+  print('tokenFCM sudah ada di storage: $tokenFcm');
+  if (tokenFcm == null) {
+    final newTokenFcm = await FirebaseMessaging.instance.getToken();
+    print('new Token FCM: $newTokenFcm');
+    await _storage.write(key: 'tokenFcm', value: newTokenFcm);
+  } else {
+    print('old Token FCM: $tokenFcm');
+  }
   runApp(MyApp());
 }
 

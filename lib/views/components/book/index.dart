@@ -139,8 +139,8 @@ class _BookPageState extends State<BookPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text('Book Page'),
-      ),
+          // title: Text('Book Page'),
+          ),
       body: _book == null
           ? Center(
               child: CircularProgressIndicator(),
@@ -155,123 +155,126 @@ class _BookPageState extends State<BookPage> {
                           borderRadius: BorderRadius.circular(10)),
                       // margin: EdgeInsets.only(top: 20),
                       child: Image.network(
-                        _book!.image,
-                        // 'https://picsum.photos/200/320',
+                        // _book!.image,
+                        'https://picsum.photos/250/320',
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   SizedBox(height: 20),
-                  Text(
-                    _book!.title,
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(_book!.author,
-                            style: TextStyle(
-                              color: Colors.orange,
-                              fontSize: 15,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            )),
-                        Text(' | ',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w200,
-                            )),
-                        Icon(
-                          Icons.star,
-                          color: Colors.orange,
-                          size: 20,
-                          weight: 20,
-                        ),
-                        Text('4.5',
-                            style: TextStyle(
-                              color: Colors.orange,
-                              fontSize: 15,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.bold,
-                            )),
-                      ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      _book!.title,
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                   SizedBox(height: 20),
                   Container(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Column(
                           children: [
-                            ElevatedButton(
-                              clipBehavior: Clip.antiAlias,
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors
-                                    .orange, // Replace 'primary' with 'backgroundColor'
-                                // fixedSize: Size(50, 50),
+                            Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  shape: BoxShape.circle),
+                              padding: const EdgeInsets.all(16),
+                              child: Icon(
+                                Icons.person_2_rounded,
+                                color: Colors.black,
                               ),
-                              child: Icon(Icons.access_time_filled_rounded),
                             ),
-                            if (_book!.availability == '1')
-                              Text('Tersedia',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                            if (_book!.availability == '0')
-                              Text('Tidak Tersedia',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
-                                  )),
+                            const SizedBox(height: 4),
+                            Text(
+                              _book!.author,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                            )
                           ],
                         ),
-                        SizedBox(width: 20),
+                        // SizedBox(width: 20),
                         Column(
                           children: [
-                            ElevatedButton(
-                              clipBehavior: Clip.antiAlias,
-                              onPressed: () {},
-                              child: Icon(Icons.my_library_books_outlined),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.orange,
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              child: Icon(Icons.access_time_filled_rounded,
+                                  color: Colors.white),
                             ),
-                            Text('31 Pembaca',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w600,
-                                )),
+                            const SizedBox(height: 4),
+                            Text(
+                              _book!.availability == 1
+                                  ? 'Tersedia'
+                                  : 'Tidak Tersedia',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        // SizedBox(width: 20),
+                        Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              child: Icon(Icons.my_library_books_outlined,
+                                  color: Colors.black),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '31 Pembaca',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 20),
+                  // SizedBox(height: 20),
                   Container(
                       padding: EdgeInsets.all(20),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text(
-                            'Sinopsis',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Sinopsis',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey,
+                              ),
+                              textAlign: TextAlign.left,
                             ),
-                            textAlign: TextAlign.left,
                           ),
                           SizedBox(height: 10),
                           Text(
@@ -285,101 +288,41 @@ class _BookPageState extends State<BookPage> {
                             textAlign: TextAlign.left,
                           ),
                           SizedBox(height: 20),
-                          Text(
-                            'Detail Buku',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Detail Buku',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey,
+                              ),
+                              textAlign: TextAlign.left,
                             ),
-                            textAlign: TextAlign.left,
                           ),
                           SizedBox(height: 10),
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Penerbit: ',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                              Text(_book!.publisher,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w400,
-                                  )),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Text('ISBN: ',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                              Text(_book!.isbn,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w400,
-                                  )),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Text('Tahun: ',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                              Text(_book!.year,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w400,
-                                  )),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Text('Halaman: ',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                              Text(_book!.pages,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w400,
-                                  )),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Text('Kategori: ',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                              Text(
+                              buildDetailRow('Penerbit', _book!.publisher),
+                              SizedBox(height: 10),
+                              buildDetailRow('ISBN', _book!.isbn),
+                              SizedBox(height: 10),
+                              buildDetailRow(
+                                  'Tahun',
+                                  _book!.year
+                                      .toString()), // Convert year to string
+                              SizedBox(height: 10),
+                              buildDetailRow(
+                                  'Halaman',
+                                  _book!.pages
+                                      .toString()), // Convert pages to string
+                              SizedBox(height: 10),
+                              buildDetailRow(
+                                  'Kategori',
                                   _book!.categories
-                                      .join(', '), // Convert list to string
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w400,
-                                  )),
+                                      .join(', ')), // Convert list to string
                             ],
                           ),
                         ],
@@ -394,6 +337,38 @@ class _BookPageState extends State<BookPage> {
                 ],
               ),
             ),
+    );
+  }
+
+  Widget buildDetailRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 100, // Sesuaikan lebar label sesuai kebutuhan Anda
+          child: Text(
+            '$label',
+            style: TextStyle(
+              fontSize: 14,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 8,
+        ),
+        Flexible(
+          child: Text(
+            ':   $value',
+            style: TextStyle(
+              fontSize: 14,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

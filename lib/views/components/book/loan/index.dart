@@ -3,6 +3,14 @@ import 'package:pustaka/data/models/loan.dart';
 import 'package:pustaka/views/components/book/index.dart';
 
 Widget loanBooks(BuildContext context, LoanList? loanList) {
+  if (loanList == null || loanList.loans.isEmpty) {
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Center(
+        child: Text('tidak ada datanya'),
+      ),
+    );
+  }
   return Padding(
     padding: const EdgeInsets.all(10.0),
     child: CustomScrollView(
@@ -17,11 +25,9 @@ Widget loanBooks(BuildContext context, LoanList? loanList) {
           delegate: SliverChildBuilderDelegate(
             (BuildContext context, int index) {
               Loan loan = loanList.loans[index];
-              DateTime now = DateTime.now();
               DateTime returnDate = DateTime.parse(loan.returnDate);
               DateTime loanDate = DateTime.parse(loan.loanDate);
-              int days = returnDate.difference(loanDate).inDays -
-                  now.difference(loanDate).inDays;
+              int days = returnDate.difference(loanDate).inDays;
               return Container(
                 width: MediaQuery.of(context).size.width / 2 - 15,
                 height: 300,

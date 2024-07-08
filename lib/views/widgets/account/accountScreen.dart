@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pustaka/views/widgets/account/accountDetail.dart';
 import 'package:pustaka/data/services/auth_service.dart';
 import 'package:pustaka/data/models/users.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AccountScreen extends StatefulWidget {
   @override
@@ -53,34 +54,62 @@ class _AccountScreenState extends State<AccountScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
           child: Column(
             children: <Widget>[
-              if (_getUser != null)
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(_getUser!.avatar),
-                ),
+              // if (_getUser != null)
+              _getUser != null
+                  ? CircleAvatar(
+                      radius: 50,
+                      backgroundImage: NetworkImage(_getUser!.avatar),
+                    )
+                  : Shimmer.fromColors(
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.grey[300],
+                      ),
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!),
+
               SizedBox(height: 20),
-              if (_getUser != null)
-                Text(
-                  _getUser!.name,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
+              // if (_getUser != null)
+              _getUser != null
+                  ? Text(
+                      _getUser!.name,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    )
+                  : Shimmer.fromColors(
+                      child: Container(
+                        width: 150,
+                        height: 24,
+                        color: Colors.grey[300],
+                      ),
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!),
               SizedBox(height: 5),
-              if (_getUser != null)
-                Text(
-                  _getUser!.description,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w400,
-                    color: Colors.grey[600],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+              // if (_getUser != null)
+              _getUser != null
+                  ? Text(
+                      _getUser!.description,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    )
+                  : Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        width: 150,
+                        height: 24,
+                        color: Colors.grey[100],
+                      ),
+                    ),
               SizedBox(height: 40),
               Card(
                 shape: RoundedRectangleBorder(

@@ -4,14 +4,16 @@ import 'package:pustaka/views/components/book/index.dart';
 class CardWidget extends StatelessWidget {
   final String title;
   final String description;
-  final double rating;
+  final String author;
+  final String year;
   final String imageUrl;
   final String bookUuid;
 
   const CardWidget({
     required this.title,
     required this.description,
-    required this.rating,
+    required this.author,
+    required this.year,
     required this.imageUrl,
     required this.bookUuid,
   });
@@ -66,19 +68,26 @@ class CardWidget extends StatelessWidget {
                               SizedBox(
                                 height: 10,
                               ),
-                              Icon(
-                                Icons.star,
-                                color: Colors.orange,
-                                size: 20,
-                              ),
+                              // Icon(
+                              //   Icons.star,
+                              //   color: Colors.orange,
+                              //   size: 20,
+                              // ),
                               Text(
-                                rating.toString(),
+                                // rating.toString(),
+                                author,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              Text(' | '),
+                              Text(year,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w700))
                             ],
                           )
                         ],
@@ -87,9 +96,18 @@ class CardWidget extends StatelessWidget {
                   ],
                 ),
               ),
+              // Container(
+              //   child: Image.network(imageUrl),
+              // )
               Container(
+                decoration: BoxDecoration(shape: BoxShape.circle
+                    // border: Border.all(
+                    //   color: Colors.grey,
+                    //   width: 1.0,
+                    // ),
+                    ),
                 child: Image.network(imageUrl),
-              )
+              ),
             ],
           ),
         ),
