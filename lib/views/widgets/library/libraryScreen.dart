@@ -4,6 +4,7 @@ import 'package:pustaka/views/components/book/loan/index.dart';
 import 'package:pustaka/data/services/get_service.dart';
 import 'package:pustaka/data/models/book.dart';
 import 'package:pustaka/data/models/loan.dart';
+import 'package:pustaka/views/components/search.dart';
 
 class LibraryScreen extends StatefulWidget {
   @override
@@ -128,15 +129,12 @@ class _LibraryScreenState extends State<LibraryScreen>
               color: Colors.black38,
               size: 30,
             ),
-            onPressed: () {},
+            onPressed: () {
+              showSearch(
+                  context: context,
+                  delegate: BookSearchDelegate(_bookList!.books));
+            },
           ),
-          IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.notifications,
-                color: Colors.black38,
-                size: 30,
-              ))
         ],
       ),
       body: TabBarView(
