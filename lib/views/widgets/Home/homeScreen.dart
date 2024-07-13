@@ -232,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       .toList(),
                 ),
           SizedBox(
-            height: 20,
+            height: 10,
           ),
           // Container(
           //   width: 340,
