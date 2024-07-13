@@ -205,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               viewportFraction: 0.8,
             ),
             items: _bookList
-                .take(5)
+                .take(10)
                 .map((book) => CardWidget(
                       title: book.title.length > 60
                           ? book.title.substring(0, 60) + "..."
