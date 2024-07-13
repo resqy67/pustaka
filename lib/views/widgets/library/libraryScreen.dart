@@ -4,6 +4,7 @@ import 'package:pustaka/views/components/book/loan/index.dart';
 import 'package:pustaka/data/services/get_service.dart';
 import 'package:pustaka/data/models/book.dart';
 import 'package:pustaka/data/models/loan.dart';
+import 'package:pustaka/data/models/log_loan.dart';
 import 'package:pustaka/views/components/search.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class _LibraryScreenState extends State<LibraryScreen>
   late TabController _tabController;
   final _getService = GetService();
   int page = 1;
+  LoanHistoryList? _loanHistoryList;
   BookList? _bookList;
   LoanList? _loanList;
   final ScrollController _scrollController = ScrollController();
@@ -24,9 +26,10 @@ class _LibraryScreenState extends State<LibraryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _fetchBooks();
     _fetchLoans();
+    _fetchLoanHistory();
     _scrollController.addListener(_scrollListener);
   }
 
@@ -51,7 +54,7 @@ class _LibraryScreenState extends State<LibraryScreen>
       print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('failed to load books $e'),
+          content: Text('Failed to load books $e'),
         ),
       );
     }
@@ -67,7 +70,25 @@ class _LibraryScreenState extends State<LibraryScreen>
       print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('failed to load loans $e'),
+          content: Text('Failed to load loans $e'),
+        ),
+      );
+    }
+  }
+
+  void _fetchLoanHistory() async {
+    try {
+      LoanHistoryList loanHistoryList = await _getService.loanHistory();
+      setState(() {
+        _loanHistoryList = loanHistoryList;
+      });
+      print(loanHistoryList.loanHistories);
+      // print(loanHistoryList!.loanHistories.length);
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load loan history $e'),
         ),
       );
     }
@@ -101,8 +122,8 @@ class _LibraryScreenState extends State<LibraryScreen>
         ),
         bottom: TabBar(
           controller: _tabController,
-          isScrollable: true,
           tabAlignment: TabAlignment.center,
+          isScrollable: true,
           indicatorWeight: 0,
           indicator: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -120,6 +141,7 @@ class _LibraryScreenState extends State<LibraryScreen>
           tabs: <Widget>[
             Tab(text: '  Rekomendasi  '),
             Tab(text: '  PinjamanKu  '),
+            Tab(text: '  Riwayat  '),
           ],
         ),
         actions: <Widget>[
@@ -130,9 +152,12 @@ class _LibraryScreenState extends State<LibraryScreen>
               size: 30,
             ),
             onPressed: () {
-              showSearch(
+              if (_bookList != null) {
+                showSearch(
                   context: context,
-                  delegate: BookSearchDelegate(_bookList!.books));
+                  delegate: BookSearchDelegate(_bookList!.books),
+                );
+              }
             },
           ),
         ],
@@ -235,15 +260,56 @@ class _LibraryScreenState extends State<LibraryScreen>
                     child: CircularProgressIndicator(),
                   ),
           ),
-          if (_loanList != null)
-            loanBooks(
-              context,
-              _loanList!,
-            )
-          else
-            Center(
-              child: CircularProgressIndicator(),
-            ),
+          _loanList != null
+              ? loanBooks(context, _loanList!)
+              : Center(
+                  child: CircularProgressIndicator(),
+                ),
+          _loanHistoryList != null && _loanHistoryList!.loanHistories.isNotEmpty
+              ? ListView.builder(
+                  itemCount: _loanHistoryList!.loanHistories.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    LoanHistory loanHistory =
+                        _loanHistoryList!.loanHistories[index];
+                    return Column(
+                      children: [
+                        ListTile(
+                            title: Text(loanHistory.bookTitle),
+                            subtitle: Text(loanHistory.bookAuthor),
+                            trailing: Text(loanHistory.returnDate),
+                            leading: Image.network(loanHistory.bookImage),
+                            visualDensity: VisualDensity.comfortable,
+                            titleTextStyle: TextStyle(
+                              fontSize: 14,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            subtitleTextStyle: TextStyle(
+                              fontSize: 12,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            )),
+                        Divider(
+                          thickness: 1,
+                          color: Colors.black26,
+                          indent: 16,
+                          endIndent: 16,
+                        ),
+                      ],
+                    );
+                  },
+                )
+              : Center(
+                  child: _loanHistoryList != null &&
+                          _loanHistoryList!.loanHistories.isEmpty
+                      ? Text('Tidak ada data')
+                      : CircularProgressIndicator(),
+                ),
         ],
       ),
     );

@@ -252,6 +252,15 @@ class _BookPageState extends State<BookPage> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
+<<<<<<< HEAD
+=======
+                            Text(_book!.loan_count + ' Pembaca',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w600,
+                                )),
+>>>>>>> b65609666cc5e3b28b5bd509c4dc8c6ff8d6fed3
                           ],
                         ),
                       ],
