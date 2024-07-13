@@ -193,35 +193,44 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           //     ],
           //   ),
           // ),
-          CarouselSlider(
-            options: CarouselOptions(
-              height: 200,
-              autoPlay: true,
-              enlargeCenterPage: true,
-              // aspectRatio: 16 / 9,
-              autoPlayCurve: Curves.fastOutSlowIn,
-              enableInfiniteScroll: true,
-              autoPlayAnimationDuration: Duration(milliseconds: 800),
-              viewportFraction: 0.8,
-            ),
-            items: _bookList
-                .take(10)
-                .map((book) => CardWidget(
-                      title: book.title.length > 60
-                          ? book.title.substring(0, 60) + "..."
-                          : book.title,
-                      description: book.description.length > 50
-                          ? book.description.substring(0, 50) + "..."
-                          : book.description,
-                      author: book.author.length > 18
-                          ? book.author.substring(0, 18) + "..."
-                          : book.author,
-                      year: book.year,
-                      imageUrl: 'https://picsum.photos/200/300',
-                      bookUuid: book.uuid,
-                    ))
-                .toList(),
-          ),
+          _bookList.isEmpty
+              ? Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    height: 200,
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                  ),
+                )
+              : CarouselSlider(
+                  options: CarouselOptions(
+                    height: 200,
+                    autoPlay: true,
+                    enlargeCenterPage: true,
+                    autoPlayCurve: Curves.fastOutSlowIn,
+                    enableInfiniteScroll: true,
+                    autoPlayAnimationDuration: Duration(milliseconds: 800),
+                    viewportFraction: 0.8,
+                  ),
+                  items: _bookList
+                      .take(10)
+                      .map((book) => CardWidget(
+                            title: book.title.length > 60
+                                ? book.title.substring(0, 60) + "..."
+                                : book.title,
+                            description: book.description.length > 50
+                                ? book.description.substring(0, 50) + "..."
+                                : book.description,
+                            author: book.author.length > 18
+                                ? book.author.substring(0, 18) + "..."
+                                : book.author,
+                            year: book.year,
+                            imageUrl: 'https://picsum.photos/200/300',
+                            bookUuid: book.uuid,
+                          ))
+                      .toList(),
+                ),
           SizedBox(
             height: 20,
           ),
@@ -233,18 +242,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           //     children: <Widget>[
           //       SingleChildScrollView(
           //           scrollDirection: Axis.horizontal,
-          //           child: _bookList == null || _bookList.isNotEmpty
-          //               ? Row(
+          //           child: _bookList == null || _bookList.isNotEmpty              ? Row(
           //                   children: _bookList.take(3).map((book) {
           //                     return CardWidget(
-          //                       title: book.title.length > 60
-          //                           ? book.title.substring(0, 60) + "..."
+          //                       title: book.title.length > 60 ? book.title.substring(0, 60) + "..."
           //                           : book.title,
           //                       description: book.description.length > 50
-          //                           ? book.description.substring(0, 50) + "..."
+          //                          d ? book.description.substring(0, 50) + "..."
           //                           : book.description,
           //                       author: book.author.length > 18
-          //                           ? book.author.substring(0, 18) + "..."
+          //                         d  ? book.author.substring(0, 18) + "..."
           //                           : book.author,
           //                       year: book.year,
           //                       // rating: 4.5, // Add actual rating if available

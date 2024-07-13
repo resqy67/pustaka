@@ -46,8 +46,8 @@ class CardWidget extends StatelessWidget {
           child: Row(
             children: <Widget>[
               Container(
-                // width: 100,
-                // height: 150,
+                // width: 150,
+                // height: 200,
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
