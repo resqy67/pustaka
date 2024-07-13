@@ -8,6 +8,7 @@ import 'package:pustaka/data/services/post_service.dart';
 import 'package:pustaka/data/models/book.dart';
 import 'package:pustaka/views/components/search.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -121,7 +122,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       color: Colors.black,
                     ),
                   )
-                : Text('Hallo')
+                : Text('Hallo',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold)),
           ],
         ),
         actions: <Widget>[
@@ -157,81 +163,110 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
-          Container(
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              indicatorWeight: 0,
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.green[50],
-              ),
-              labelPadding:
-                  EdgeInsets.only(left: 15, right: 15, top: 0, bottom: 0),
-              overlayColor: MaterialStateProperty.all(Colors.transparent),
-              labelStyle: TextStyle(
-                fontSize: 15,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.bold,
-              ),
-              labelColor: Colors.green[600],
-              unselectedLabelColor: Colors.black38,
-              tabs: <Widget>[
-                Tab(
-                  text: '  Terbaru  ',
-                ),
-                // Tab(
-                //   text: '  Disarankan  ',
-                // ),
-              ],
+          // Container(
+          //   child: TabBar(
+          //     controller: _tabController,
+          //     isScrollable: true,
+          //     tabAlignment: TabAlignment.start,
+          //     indicatorWeight: 0,
+          //     indicator: BoxDecoration(
+          //       borderRadius: BorderRadius.circular(20),
+          //       color: Colors.green[50],
+          //     ),
+          //     labelPadding:
+          //         EdgeInsets.only(left: 15, right: 15, top: 0, bottom: 0),
+          //     overlayColor: MaterialStateProperty.all(Colors.transparent),
+          //     labelStyle: TextStyle(
+          //       fontSize: 15,
+          //       fontFamily: 'Poppins',
+          //       fontWeight: FontWeight.bold,
+          //     ),
+          //     labelColor: Colors.green[600],
+          //     unselectedLabelColor: Colors.black38,
+          //     tabs: <Widget>[
+          //       Tab(
+          //         text: '  Terbaru  ',
+          //       ),
+          //       // Tab(
+          //       //   text: '  Disarankan  ',
+          //       // ),
+          //     ],
+          //   ),
+          // ),
+          CarouselSlider(
+            options: CarouselOptions(
+              height: 200,
+              autoPlay: true,
+              enlargeCenterPage: true,
+              // aspectRatio: 16 / 9,
+              autoPlayCurve: Curves.fastOutSlowIn,
+              enableInfiniteScroll: true,
+              autoPlayAnimationDuration: Duration(milliseconds: 800),
+              viewportFraction: 0.8,
             ),
+            items: _bookList
+                .take(5)
+                .map((book) => CardWidget(
+                      title: book.title.length > 60
+                          ? book.title.substring(0, 60) + "..."
+                          : book.title,
+                      description: book.description.length > 50
+                          ? book.description.substring(0, 50) + "..."
+                          : book.description,
+                      author: book.author.length > 18
+                          ? book.author.substring(0, 18) + "..."
+                          : book.author,
+                      year: book.year,
+                      imageUrl: 'https://picsum.photos/200/300',
+                      bookUuid: book.uuid,
+                    ))
+                .toList(),
           ),
           SizedBox(
             height: 20,
           ),
-          Container(
-            width: 340,
-            height: 200,
-            child: TabBarView(
-              controller: _tabController,
-              children: <Widget>[
-                SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: _bookList == null || _bookList.isNotEmpty
-                        ? Row(
-                            children: _bookList.take(3).map((book) {
-                              return CardWidget(
-                                title: book.title.length > 60
-                                    ? book.title.substring(0, 60) + "..."
-                                    : book.title,
-                                description: book.description.length > 50
-                                    ? book.description.substring(0, 50) + "..."
-                                    : book.description,
-                                author: book.author.length > 18
-                                    ? book.author.substring(0, 18) + "..."
-                                    : book.author,
-                                year: book.year,
-                                // rating: 4.5, // Add actual rating if available
-                                imageUrl: 'https://picsum.photos/200/300',
-                                bookUuid: book.uuid,
-                              );
-                            }).toList(),
-                          )
-                        : Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              width: 600,
-                              height: 400,
-                              color: Colors.grey[300],
-                            ))),
-              ],
-            ),
-          ),
+          // Container(
+          //   width: 340,
+          //   height: 200,
+          //   child: TabBarView(
+          //     controller: _tabController,
+          //     children: <Widget>[
+          //       SingleChildScrollView(
+          //           scrollDirection: Axis.horizontal,
+          //           child: _bookList == null || _bookList.isNotEmpty
+          //               ? Row(
+          //                   children: _bookList.take(3).map((book) {
+          //                     return CardWidget(
+          //                       title: book.title.length > 60
+          //                           ? book.title.substring(0, 60) + "..."
+          //                           : book.title,
+          //                       description: book.description.length > 50
+          //                           ? book.description.substring(0, 50) + "..."
+          //                           : book.description,
+          //                       author: book.author.length > 18
+          //                           ? book.author.substring(0, 18) + "..."
+          //                           : book.author,
+          //                       year: book.year,
+          //                       // rating: 4.5, // Add actual rating if available
+          //                       imageUrl: 'https://picsum.photos/200/300',
+          //                       bookUuid: book.uuid,
+          //                     );
+          //                   }).toList(),
+          //                 )
+          //               : Shimmer.fromColors(
+          //                   baseColor: Colors.grey[300]!,
+          //                   highlightColor: Colors.grey[100]!,
+          //                   child: Container(
+          //                     width: 600,
+          //                     height: 400,
+          //                     color: Colors.grey[300],
+          //                   ))),
+          //     ],
+          //   ),
+          // ),
           Container(
             alignment: Alignment.centerLeft,
-            margin: EdgeInsets.only(top: 20, left: 25, bottom: 10),
+            margin: EdgeInsets.only(top: 5, left: 25, bottom: 10),
             child: Text(
               'Mungkin Kamu Suka',
               style: TextStyle(

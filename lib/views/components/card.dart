@@ -31,7 +31,7 @@ class CardWidget extends StatelessWidget {
         child: Card(
           color: Colors.white,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Container(
                 width: 200,
@@ -96,16 +96,7 @@ class CardWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              // Container(
-              //   child: Image.network(imageUrl),
-              // )
               Container(
-                decoration: BoxDecoration(shape: BoxShape.circle
-                    // border: Border.all(
-                    //   color: Colors.grey,
-                    //   width: 1.0,
-                    // ),
-                    ),
                 child: Image.network(imageUrl),
               ),
             ],

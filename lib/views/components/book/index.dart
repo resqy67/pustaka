@@ -139,8 +139,15 @@ class _BookPageState extends State<BookPage> {
     }
     return Scaffold(
       appBar: AppBar(
-          // title: Text('Book Page'),
+        title: Text(
+          _book == null ? 'Loading...' : _book!.title,
+          style: TextStyle(
+            fontSize: 20,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w600,
           ),
+        ),
+      ),
       body: _book == null
           ? Center(
               child: CircularProgressIndicator(),
@@ -211,12 +218,12 @@ class _BookPageState extends State<BookPage> {
                           children: [
                             Container(
                               decoration: BoxDecoration(
-                                color: Colors.orange,
+                                color: Colors.grey[300],
                                 shape: BoxShape.circle,
                               ),
                               padding: const EdgeInsets.all(16),
                               child: Icon(Icons.access_time_filled_rounded,
-                                  color: Colors.white),
+                                  color: Colors.black),
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -245,22 +252,13 @@ class _BookPageState extends State<BookPage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '31 Pembaca',
+                              _book!.loan_count + ' Pembaca',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-<<<<<<< HEAD
-=======
-                            Text(_book!.loan_count + ' Pembaca',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w600,
-                                )),
->>>>>>> b65609666cc5e3b28b5bd509c4dc8c6ff8d6fed3
                           ],
                         ),
                       ],

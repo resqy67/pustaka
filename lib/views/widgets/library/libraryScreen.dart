@@ -279,6 +279,16 @@ class _LibraryScreenState extends State<LibraryScreen>
                             trailing: Text(loanHistory.returnDate),
                             leading: Image.network(loanHistory.bookImage),
                             visualDensity: VisualDensity.comfortable,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BookPage(
+                                    bookUuid: loanHistory.bookUuid,
+                                  ),
+                                ),
+                              );
+                            },
                             titleTextStyle: TextStyle(
                               fontSize: 14,
                               fontFamily: 'Poppins',
