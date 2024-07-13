@@ -11,6 +11,7 @@ class Book {
   final String filepdf;
   final List<String> categories;
   final String availability;
+  final String loan_count;
 
   Book(
       {required this.uuid,
@@ -24,7 +25,8 @@ class Book {
       required this.image,
       required this.filepdf,
       required this.categories,
-      required this.availability});
+      required this.availability,
+      required this.loan_count});
 
   factory Book.fromJson(Map<String, dynamic> json) {
     List<dynamic> categoriesJson = json['categories'] ?? [];
@@ -44,6 +46,7 @@ class Book {
       filepdf: json['filepdf'].toString(),
       categories: categories,
       availability: json['availability'].toString(),
+      loan_count: json['loan_count'].toString(),
     );
   }
 
@@ -61,6 +64,7 @@ class Book {
       'filepdf': filepdf,
       'categories': categories,
       'availability': availability,
+      'loan_count': loan_count,
     };
   }
 }

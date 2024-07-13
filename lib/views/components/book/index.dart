@@ -246,7 +246,7 @@ class _BookPageState extends State<BookPage> {
                               onPressed: () {},
                               child: Icon(Icons.my_library_books_outlined),
                             ),
-                            Text('31 Pembaca',
+                            Text(_book!.loan_count + ' Pembaca',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontFamily: 'Poppins',
