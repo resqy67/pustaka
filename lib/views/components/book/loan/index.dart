@@ -94,7 +94,9 @@ Widget loanBooks(BuildContext context, LoanList? loanList) {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                loan.bookTitle,
+                                loan.bookTitle.length > 20
+                                    ? loan.bookTitle.substring(0, 20) + '...'
+                                    : loan.bookTitle,
                                 // 'Thinking, Fast and Slow',
                                 style: TextStyle(
                                   fontSize: 14,

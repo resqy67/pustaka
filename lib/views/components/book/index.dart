@@ -60,6 +60,7 @@ class _BookPageState extends State<BookPage> {
         bookUuid: widget.bookUuid,
         userId: _getUser!.id,
       );
+      print(response);
       if (response['status'] == 'success') {
         setState(() {
           isAvailable = true;
@@ -130,8 +131,10 @@ class _BookPageState extends State<BookPage> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    PdfScreen(bookUuid: _book!.uuid, pdfPath: _book!.filepdf)));
+                builder: (context) => PdfScreen(
+                    bookUuid: _book!.uuid,
+                    pdfPath: _book!.filepdf,
+                    title: _book!.title)));
       };
     } else {
       buttonText = 'Sudah Dipinjam';
@@ -160,10 +163,10 @@ class _BookPageState extends State<BookPage> {
                       clipBehavior: Clip.antiAlias,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
-                      // margin: EdgeInsets.only(top: 20),
+                      margin: EdgeInsets.only(top: 10),
                       child: Image.network(
-                        // _book!.image,
-                        'https://picsum.photos/250/320',
+                        _book!.image,
+                        width: 250,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -182,35 +185,62 @@ class _BookPageState extends State<BookPage> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
                   Container(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Column(
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  shape: BoxShape.circle),
-                              padding: const EdgeInsets.all(16),
-                              child: Icon(
-                                Icons.person_2_rounded,
-                                color: Colors.black,
-                              ),
-                            ),
+                            _book!.author.length > 20
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        shape: BoxShape.circle),
+                                    padding: const EdgeInsets.all(16),
+                                    margin: const EdgeInsets.only(top: 17),
+                                    child: Icon(
+                                      Icons.person_2_rounded,
+                                      color: Colors.black,
+                                    ),
+                                  )
+                                : Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        shape: BoxShape.circle),
+                                    padding: const EdgeInsets.all(16),
+                                    child: Icon(
+                                      Icons.person_2_rounded,
+                                      color: Colors.black,
+                                    ),
+                                  ),
                             const SizedBox(height: 4),
-                            Text(
-                              _book!.author,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                            )
+                            _book!.author.length > 20
+                                ? Padding(
+                                    padding: const EdgeInsets.only(top: 1.0),
+                                    child: SizedBox(
+                                      width: 100,
+                                      child: Text(
+                                        _book!.author,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    _book!.author,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                           ],
                         ),
                         // SizedBox(width: 20),
@@ -227,7 +257,7 @@ class _BookPageState extends State<BookPage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              _book!.availability == 1
+                              _book!.availability.toString() == '1'
                                   ? 'Tersedia'
                                   : 'Tidak Tersedia',
                               style: TextStyle(
@@ -286,13 +316,12 @@ class _BookPageState extends State<BookPage> {
                           SizedBox(height: 10),
                           Text(
                             _book!.description,
-                            // '  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec odio. Donec et nunc nec nisl ultricies ultricies. Donec auctor, nunc nec Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec odio. Nullam vel sapien sit amet',
                             style: TextStyle(
                               fontSize: 14,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w400,
                             ),
-                            textAlign: TextAlign.left,
+                            textAlign: TextAlign.center,
                           ),
                           SizedBox(height: 20),
                           Align(

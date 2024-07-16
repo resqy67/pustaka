@@ -219,14 +219,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             title: book.title.length > 60
                                 ? book.title.substring(0, 60) + "..."
                                 : book.title,
-                            description: book.description.length > 50
-                                ? book.description.substring(0, 50) + "..."
+                            description: book.description.length > 48
+                                ? book.description.substring(0, 48) + "..."
                                 : book.description,
-                            author: book.author.length > 18
-                                ? book.author.substring(0, 18) + "..."
+                            author: book.author.length > 12
+                                ? book.author.substring(0, 12) + "..."
                                 : book.author,
                             year: book.year,
-                            imageUrl: 'https://picsum.photos/200/300',
+                            imageUrl: book.image,
+                            // imageUrl: 'https://picsum.photos/200/300',
                             bookUuid: book.uuid,
                           ))
                       .toList(),
@@ -293,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     children: _bookList.map((item) {
                       return Container(
                         width: MediaQuery.of(context).size.width / 2 - 15,
-                        height: 300,
+                        height: 350,
                         child: Card(
                           color: Colors.white,
                           child: Column(
@@ -327,8 +328,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      item.title.length > 60
-                                          ? item.title.substring(0, 55) + "..."
+                                      item.title.length > 30
+                                          ? item.title.substring(0, 30) + "..."
                                           : item.title,
                                       style: TextStyle(
                                         fontSize: 14,

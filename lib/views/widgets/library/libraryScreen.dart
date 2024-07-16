@@ -139,7 +139,7 @@ class _LibraryScreenState extends State<LibraryScreen>
           labelColor: Colors.green[600],
           unselectedLabelColor: Colors.black38,
           tabs: <Widget>[
-            Tab(text: '  Rekomendasi  '),
+            Tab(text: '  Daftar Buku  '),
             Tab(text: '  PinjamanKu  '),
             Tab(text: '  Riwayat  '),
           ],
@@ -219,7 +219,11 @@ class _LibraryScreenState extends State<LibraryScreen>
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              book.title,
+                                              book.title.length > 20
+                                                  ? book.title
+                                                          .substring(0, 20) +
+                                                      '...'
+                                                  : book.title,
                                               style: TextStyle(
                                                 fontSize: 14,
                                                 fontFamily: 'Poppins',
@@ -235,6 +239,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                                                 fontFamily: 'Poppins',
                                                 fontWeight: FontWeight.w400,
                                               ),
+                                              textAlign: TextAlign.left,
                                             ),
                                           ],
                                         ),

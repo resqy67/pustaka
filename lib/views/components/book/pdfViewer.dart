@@ -7,8 +7,10 @@ import 'package:pustaka/data/services/pdf_service.dart';
 class PdfScreen extends StatefulWidget {
   final String bookUuid;
   final String pdfPath;
+  final String title;
 
-  PdfScreen({required this.bookUuid, required this.pdfPath});
+  PdfScreen(
+      {required this.bookUuid, required this.pdfPath, required this.title});
 
   @override
   _PdfScreenState createState() => _PdfScreenState();
@@ -21,6 +23,7 @@ class _PdfScreenState extends State<PdfScreen> {
   String? _pdfPath;
   bool _isLoading = true;
   bool _isNightMode = false;
+  bool _isSwipeHorizontal = true;
   final storage = FlutterSecureStorage();
   Key _pdfViewKey = UniqueKey();
 
@@ -80,7 +83,8 @@ class _PdfScreenState extends State<PdfScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("PDF Viewer"),
+        title: Text(widget.title),
+        backgroundColor: Colors.transparent,
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
@@ -95,6 +99,7 @@ class _PdfScreenState extends State<PdfScreen> {
                       pageFling: true,
                       pageSnap: true,
                       preventLinkNavigation: true,
+                      swipeHorizontal: _isSwipeHorizontal,
                       nightMode: _isNightMode,
                       onRender: (pages) {
                         setState(() {
@@ -112,7 +117,7 @@ class _PdfScreenState extends State<PdfScreen> {
                         setState(() {
                           _currentPage = page!;
                         });
-                        _saveLastPage(_currentPage);
+                        // _saveLastPage(_currentPage);
                       },
                       defaultPage: _currentPage,
                     ),
@@ -168,6 +173,61 @@ class _PdfScreenState extends State<PdfScreen> {
               );
             },
           ),
+          SpeedDialChild(
+            child: Icon(Icons.swap_horiz),
+            backgroundColor: Colors.orange,
+            label: 'Swipe Direction',
+            onTap: () {
+              setState(() {
+                _isSwipeHorizontal = !_isSwipeHorizontal;
+                // _pdfViewController;
+                _pdfViewKey = UniqueKey();
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(
+                        'Swipe direction ${_isSwipeHorizontal ? 'horizontal' : 'vertical'}')),
+              );
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.pages),
+            backgroundColor: Colors.purple,
+            label: 'Go to Page',
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Go to Page'),
+                    content: TextField(
+                      keyboardType: TextInputType.number,
+                      onSubmitted: (value) {
+                        int page = int.parse(value);
+                        if (page > 0 && page <= _totalPages) {
+                          _pdfViewController?.setPage(page - 1);
+                          Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Invalid page number: $page')),
+                          );
+                        }
+                      },
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('Cancel'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          )
         ],
       ),
     );

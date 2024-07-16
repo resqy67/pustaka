@@ -65,17 +65,25 @@ class BookSearchDelegate extends SearchDelegate {
       itemCount: suggestions.length,
       itemBuilder: (context, index) {
         final book = suggestions[index];
-        return ListTile(
-          title: Text(book.title),
-          subtitle: Text(book.author),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BookPage(bookUuid: book.uuid),
-              ),
-            );
-          },
+        return Column(
+          children: [
+            ListTile(
+              leading:
+                  Icon(Icons.history), // Add the history icon to the left side
+              title: Text(book.title),
+              subtitle: Text(book.author),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BookPage(bookUuid: book.uuid),
+                  ),
+                );
+              },
+              trailing: Icon(Icons.arrow_outward),
+            ),
+            Divider(),
+          ],
         );
       },
     );

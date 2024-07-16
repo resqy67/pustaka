@@ -46,8 +46,7 @@ class CardWidget extends StatelessWidget {
           child: Row(
             children: <Widget>[
               Container(
-                // width: 150,
-                // height: 200,
+                // height: 150, // Set the desired height here
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
@@ -88,7 +87,7 @@ class CardWidget extends StatelessWidget {
                           Text(
                             author,
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
                               color: Colors.grey[700],
@@ -98,7 +97,7 @@ class CardWidget extends StatelessWidget {
                           Text(
                             '|',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
                               color: Colors.grey[700],
@@ -108,7 +107,7 @@ class CardWidget extends StatelessWidget {
                           Text(
                             year,
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 12,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.bold,
                               color: Colors.grey[700],
