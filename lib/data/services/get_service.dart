@@ -75,7 +75,7 @@ class GetService {
 
   Future<LoanHistoryList> loanHistory() async {
     try {
-      final response = await _dio.get('/loan-histories');
+      final response = await _dio.get('/loan-history/user');
       final data = response.data['data'];
       print('ini data loan history list $data');
       return LoanHistoryList.fromJson(data);

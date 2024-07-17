@@ -23,7 +23,7 @@ class _PdfScreenState extends State<PdfScreen> {
   String? _pdfPath;
   bool _isLoading = true;
   bool _isNightMode = false;
-  bool _isSwipeHorizontal = true;
+  bool _isSwipeHorizontal = false;
   final storage = FlutterSecureStorage();
   Key _pdfViewKey = UniqueKey();
 
@@ -84,7 +84,7 @@ class _PdfScreenState extends State<PdfScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        backgroundColor: Colors.transparent,
+        // backgroundColor: Colors.transparent,
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())

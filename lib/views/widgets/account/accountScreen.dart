@@ -111,33 +111,33 @@ class _AccountScreenState extends State<AccountScreen> {
                       ),
                     ),
               SizedBox(height: 40),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                elevation: 5,
-                child: ListTile(
-                  title: Text(
-                    'Akun',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text('Kelola akun kamu'),
-                  leading: Icon(
-                    Icons.account_circle,
-                    color: Colors.blueAccent,
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return AccountDetail();
-                    }));
-                  },
-                ),
-              ),
+              // Card(
+              //   shape: RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.circular(15),
+              //   ),
+              //   elevation: 5,
+              //   child: ListTile(
+              //     title: Text(
+              //       'Akun',
+              //       style: TextStyle(
+              //         fontFamily: 'Poppins',
+              //         fontWeight: FontWeight.bold,
+              //       ),
+              //     ),
+              //     subtitle: Text('Kelola akun kamu'),
+              //     leading: Icon(
+              //       Icons.account_circle,
+              //       color: Colors.blueAccent,
+              //     ),
+              //     trailing: Icon(Icons.arrow_forward_ios),
+              //     onTap: () {
+              //       Navigator.push(context,
+              //           MaterialPageRoute(builder: (context) {
+              //         return AccountDetail();
+              //       }));
+              //     },
+              //   ),
+              // ),
               SizedBox(height: 10),
               Card(
                 shape: RoundedRectangleBorder(
