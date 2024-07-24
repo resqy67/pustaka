@@ -3,7 +3,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pustaka/data/models/users.dart';
 
 class AuthService {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://id3.labkom.us:4148/api'));
+  // base url from labkom
+  // final Dio _dio = Dio(BaseOptions(baseUrl: 'http://id3.labkom.us:4148/api'));
+
+  // base url from indihome
+  final Dio _dio = Dio(
+      BaseOptions(baseUrl: 'http://851d07584dc9.sn.mynetname.net:8080/api'));
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   AuthService() {
