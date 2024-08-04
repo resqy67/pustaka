@@ -6,9 +6,8 @@ class AuthService {
   // base url from labkom
   // final Dio _dio = Dio(BaseOptions(baseUrl: 'http://id3.labkom.us:4148/api'));
 
-  // base url from indihome
-  final Dio _dio = Dio(
-      BaseOptions(baseUrl: 'http://851d07584dc9.sn.mynetname.net:8080/api'));
+  // base url from vps
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://103.127.96.198:8000/api'));
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   AuthService() {
