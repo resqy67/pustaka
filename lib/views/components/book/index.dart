@@ -257,9 +257,9 @@ class _BookPageState extends State<BookPage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              _book!.availability.toString() == '1'
-                                  ? 'Tersedia'
-                                  : 'Tidak Tersedia',
+                              _book!.availability == '0'
+                                  ? 'Tidak Tersedia'
+                                  : '${_book!.availability} Buku Tersedia',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontFamily: 'Poppins',
