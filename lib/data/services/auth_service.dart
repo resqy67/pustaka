@@ -7,7 +7,14 @@ class AuthService {
   // final Dio _dio = Dio(BaseOptions(baseUrl: 'http://id3.labkom.us:4148/api'));
 
   // base url from vps
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://103.127.96.198:8000/api'));
+  final Dio _dio = Dio(BaseOptions(
+      baseUrl: 'https://pustaka.smkairlanggabpn.sch.id/api',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        // bypass safeline web application firewall
+        'user-agent': 'BypassPustaka/26',
+      }));
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   AuthService() {
@@ -25,14 +32,30 @@ class AuthService {
   }
 
   Future<User> login(String email, String password) async {
-    final response = await _dio.post('/login', data: {
-      'email': email,
-      'password': password,
-    });
+    // final response = await _dio.post('/login', data: {
+    //   'email': email,
+    //   'password': password,
+    // });
+    // print('response data: ${response}');
+    // final user = User.fromJson(response.data);
+    // await _storage.write(key: 'token', value: user.token);
+    // return user;
+    try {
+      final response = await _dio.post('/login', data: {
+        'email': email,
+        'password': password,
+      });
 
-    final user = User.fromJson(response.data);
-    await _storage.write(key: 'token', value: user.token);
-    return user;
+      print('response data: ${response.data}');
+      final user = User.fromJson(response.data);
+      await _storage.write(key: 'token', value: user.token);
+      return user;
+    } on DioException catch (e) {
+      // Di sini kita bisa lihat apa alasan server menolak (status 403)
+      print('Error Status: ${e.response?.statusCode}');
+      print('Error Response Data: ${e.response?.data}');
+      rethrow;
+    }
   }
 
   Future<void> logout() async {

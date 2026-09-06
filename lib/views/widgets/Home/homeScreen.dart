@@ -81,12 +81,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
     try {
       BookList bookList = await _getService.books(page.toString());
+      if (!mounted) return;
       setState(() {
         _bookList.addAll(bookList.books);
         _searchResults = _bookList;
         page++;
       });
     } catch (e) {
+      if (!mounted) return;
       print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -287,64 +289,95 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           _bookList.isNotEmpty
               ? Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: _bookList.map((item) {
-                      return Container(
-                        width: MediaQuery.of(context).size.width / 2 - 15,
-                        height: 350,
-                        child: Card(
-                          color: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _bookList.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio:
+                          0.62, // Mengatur proporsi tinggi dan lebar kartu
+                    ),
+                    itemBuilder: (context, index) {
+                      final item = _bookList[index];
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  BookPage(bookUuid: item.uuid),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
                           child: Column(
-                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              InkWell(
-                                splashColor: Colors.grey,
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              BookPage(bookUuid: item.uuid)));
-                                },
-                                child: Card(
-                                  elevation: 0,
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Image.network(
-                                        item.image,
-                                        fit: BoxFit.cover,
+                              // Bagian Gambar Cover Buku dengan Sudut Melengkung
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
+                                  child: Image.network(
+                                    item.image,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Container(
+                                      color: Colors.grey[200],
+                                      child: const Center(
+                                        child: Icon(Icons.broken_image,
+                                            color: Colors.grey),
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
+                              // Bagian Teks Judul & Penulis
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(12.0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      item.title.length > 30
-                                          ? item.title.substring(0, 30) + "..."
-                                          : item.title,
-                                      style: TextStyle(
+                                      item.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
                                         fontSize: 14,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black,
+                                        color: Colors.black87,
                                       ),
-                                      textAlign: TextAlign.left,
                                     ),
+                                    const SizedBox(height: 4),
                                     Text(
                                       item.author,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.w400,
+                                        color: Colors.grey[600],
                                       ),
                                     ),
                                   ],
@@ -354,50 +387,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                         ),
                       );
-                    }).toList(),
+                    },
                   ),
                 )
-              // : Center(
-              //     child: CircularProgressIndicator(),
-              //   ),
               : Shimmer.fromColors(
                   baseColor: Colors.grey[300]!,
                   highlightColor: Colors.grey[100]!,
                   child: Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width / 2 - 15,
-                          height: 300,
-                          child: Card(
+                    padding: const EdgeInsets.all(16.0),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: 4,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 0.62,
+                      ),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          decoration: BoxDecoration(
                             color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width / 2 - 15,
-                          height: 300,
-                          child: Card(
-                            color: Colors.grey[300],
-                          ),
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width / 2 - 15,
-                          height: 300,
-                          child: Card(color: Colors.grey[300]),
-                        ),
-                        Container(
-                          width: MediaQuery.of(context).size.width / 2 - 15,
-                          height: 300,
-                          child: Card(
-                            color: Colors.grey[300],
-                          ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  )),
+                  ),
+                ),
+          SizedBox(height: 20),
           if (isLoading) Center(child: CircularProgressIndicator())
         ]),
       ),

@@ -9,7 +9,13 @@ class GetService {
   // final Dio _dio = Dio(BaseOptions(baseUrl: 'http://id3.labkom.us:4148/api'));
 
   // base url from vps
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://103.127.96.198:8000/api'));
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'https://pustaka.smkairlanggabpn.sch.id/api',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        // bypass safeline web application firewall
+        'user-agent': 'BypassPustaka/26',
+      }));
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   GetService() {

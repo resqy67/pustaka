@@ -6,7 +6,14 @@ class PostService {
   // final Dio _dio = Dio(BaseOptions(baseUrl: 'http://id3.labkom.us:4148/api'));
 
   // base url from vps
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://103.127.96.198:8000/api'));
+  final Dio _dio =
+      Dio(BaseOptions(baseUrl: 'https://pustaka.smkairlanggabpn.sch.id/api',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        // bypass safeline web application firewall
+        'user-agent': 'BypassPustaka/26',
+      }));
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   PostService() {
@@ -39,21 +46,41 @@ class PostService {
   }
 
   // update tokenFcm in user
-  Future<Map<String, dynamic>> updateTokenFcm() async {
+  // Future<Map<String, dynamic>> updateTokenFcm() async {
+  //   final tokenFcm = await _storage.read(key: 'tokenFcm');
+  //   print('Token FCM: $tokenFcm');
+  //   if (tokenFcm == null) {
+  //     return {'message': 'Token FCM not found'};
+  //   }
+  //   try {
+  //     final response = await _dio.post('/user/update-token-fcm', data: {
+  //       'token_fcm': tokenFcm,
+  //     });
+  //     return response.data;
+  //   } catch (e, stacktrace) {
+  //     print('Error: $e');
+  //     print('Stacktrace: $stacktrace');
+  //     return null;
+  //   }
+  // }
+  Future<Map<String, dynamic>?> updateTokenFcm() async {
     final tokenFcm = await _storage.read(key: 'tokenFcm');
-    print('Token FCM: $tokenFcm');
-    if (tokenFcm == null) {
-      return {'message': 'Token FCM not found'};
+
+    // Kalau token FCM kosong, langsung return null/aman tanpa nge-hit API
+    if (tokenFcm == null || tokenFcm.isEmpty) {
+      print('Token FCM kosong, melewati proses update token.');
+      return null;
     }
+
     try {
       final response = await _dio.post('/user/update-token-fcm', data: {
         'token_fcm': tokenFcm,
       });
       return response.data;
-    } catch (e, stacktrace) {
-      print('Error: $e');
-      print('Stacktrace: $stacktrace');
-      throw Exception('Failed to update token fcm');
+    } catch (e) {
+      // Kalau gagal koneksi atau error, cukup cetak log-nya tanpa throw exception/crash
+      print('Gagal update token FCM (diabaikan): $e');
+      return null;
     }
   }
 }

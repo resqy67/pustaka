@@ -41,12 +41,12 @@ Future<void> _showNotification(RemoteMessage message) async {
   const NotificationDetails notificationDetails =
       NotificationDetails(android: androidNotificationDetails);
 
-  await flutterLocalNotificationsPlugin.show(
-    message.messageId.hashCode,
-    message.notification?.title,
-    message.notification?.body,
-    notificationDetails,
-  );
+  // await flutterLocalNotificationsPlugin.show(
+  //   message.messageId.hashCode,
+  //   message.notification?.title,
+  //   message.notification?.body,
+  //   notificationDetails,
+  // );
 }
 
 void main() async {
@@ -62,7 +62,7 @@ void main() async {
       AndroidInitializationSettings('@mipmap/ic_launcher');
   const InitializationSettings initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid);
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  // await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   // Inisialisasi Firebase Messaging
   await FirebaseMessaging.instance.setAutoInitEnabled(true);
