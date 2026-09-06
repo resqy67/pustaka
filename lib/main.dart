@@ -9,88 +9,63 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Fungsi untuk menangani pesan yang diterima ketika aplikasi berjalan di background
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('Handling a background message ${message.messageId}');
-  _showNotification(message);
-}
+// ============================================================================
+// KONFIGURASI NOTIFIKASI
+// ============================================================================
 
-// Fungsi untuk menangani pesan yang diterima ketika aplikasi berjalan di foreground
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingHandler(RemoteMessage message) async {
-  print('Handling a foreground message ${message.messageId}');
-  _showNotification(message);
-}
-
-// Inisialisasi plugin notifikasi lokal
+// Inisialisasi plugin notifikasi lokal (Global)
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-// Menampilkan notifikasi
-Future<void> _showNotification(RemoteMessage message) async {
-  const AndroidNotificationDetails androidNotificationDetails =
-      AndroidNotificationDetails(
-    'high_importance_channel', // ID unik untuk saluran notifikasi
-    'High Importance Notifications', // Nama saluran notifikasi
-    channelDescription:
-        'This channel is used for important notifications.', // Deskripsi saluran notifikasi
-    importance: Importance.max,
-    priority: Priority.high,
-  );
-  const NotificationDetails notificationDetails =
-      NotificationDetails(android: androidNotificationDetails);
-
-  // await flutterLocalNotificationsPlugin.show(
-  //   message.messageId.hashCode,
-  //   message.notification?.title,
-  //   message.notification?.body,
-  //   notificationDetails,
-  // );
-}
-
-void main() async {
-  final FlutterSecureStorage _storage = FlutterSecureStorage();
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  requestNotificationPermission();
-
-  // Inisialisasi plugin notifikasi lokal
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-  const InitializationSettings initializationSettings =
-      InitializationSettings(android: initializationSettingsAndroid);
-  // await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-  // Inisialisasi Firebase Messaging
-  await FirebaseMessaging.instance.setAutoInitEnabled(true);
-  // menangani pesan yang diterima ketika aplikasi berjalan di foreground
-  FirebaseMessaging.onMessage.listen(_firebaseMessagingHandler);
-
-  // menangani pesan yang diterima ketika aplikasi berjalan di background
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  // menangani pesan yang diterima ketika aplikasi dibuka dari notifikasi
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print('A new onMessageOpenedApp event was published!');
-  });
-
-  // Mendapatkan token FCM
-  final tokenFcm = await _storage.read(key: 'tokenFcm');
-  print('tokenFCM sudah ada di storage: $tokenFcm');
-  if (tokenFcm == null) {
-    final newTokenFcm = await FirebaseMessaging.instance.getToken();
-    print('new Token FCM: $newTokenFcm');
-    await _storage.write(key: 'tokenFcm', value: newTokenFcm);
-  } else {
-    print('old Token FCM: $tokenFcm');
+// Handler untuk pesan saat aplikasi di background / tertutup (Terminated)
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Pastikan Firebase diinisialisasi juga di background isolate
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
   }
-  runApp(MyApp());
+  print('Menerima pesan background: ${message.messageId}');
+  await _showNotification(message);
 }
 
-// Meminta izin notifikasi
+// Handler untuk pesan saat aplikasi aktif di layar (Foreground)
+void _firebaseMessagingForegroundHandler(RemoteMessage message) {
+  print('Menerima pesan foreground: ${message.messageId}');
+  _showNotification(message);
+}
+
+// Menampilkan notifikasi banner/pop-up di layar
+Future<void> _showNotification(RemoteMessage message) async {
+  final notification = message.notification;
+
+  // Hanya tampilkan jika payload berupa notifikasi (bukan silent data message)
+  if (notification != null) {
+    const AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+      'pustaka_high_importance_channel', // ID unik
+      'High Importance Notifications', // Nama channel
+      channelDescription:
+          'Saluran khusus untuk notifikasi penting Pustaka Skarla.',
+      importance: Importance.max,
+      priority: Priority.high,
+      color: Color(0xFF388E3C), // Warna hijau khas Pustaka
+      icon: '@mipmap/ic_launcher',
+    );
+
+    const NotificationDetails notificationDetails =
+        NotificationDetails(android: androidNotificationDetails);
+
+    await flutterLocalNotificationsPlugin.show(
+      id: notification.hashCode,
+      title: notification.title,
+      body: notification.body,
+      notificationDetails: notificationDetails,
+    );
+  }
+}
+
+// Meminta izin notifikasi dari pengguna (terutama Android 13+ & iOS)
 Future<void> requestNotificationPermission() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   NotificationSettings settings = await messaging.requestPermission(
@@ -102,48 +77,121 @@ Future<void> requestNotificationPermission() async {
     provisional: false,
     sound: true,
   );
-  print('User granted permission: ${settings.authorizationStatus}');
+  print('Status Izin Notifikasi: ${settings.authorizationStatus}');
 }
+
+// ============================================================================
+// ENTRY POINT APLIKASI
+// ============================================================================
+
+void main() async {
+  // Wajib dipanggil sebelum inisialisasi native/Firebase
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 1. Inisialisasi Firebase (Dengan proteksi anti Duplicate App)
+  // if (Firebase.apps.isEmpty) {
+  //   await Firebase.initializeApp(
+  //     options: DefaultFirebaseOptions.currentPlatform,
+  //   );
+  // }
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    print('Firebase memang sudah jalan dari sananya: $e');
+  }
+
+  // 2. Minta izin notifikasi
+  await requestNotificationPermission();
+
+  // 3. Setup Local Notifications (Un-commented dan disempurnakan)
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  const InitializationSettings initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+
+  await flutterLocalNotificationsPlugin.initialize(
+    settings: initializationSettings, // <-- Ubah kata awalnya jadi 'settings'
+  );
+
+  // 4. Konfigurasi Firebase Messaging
+  await FirebaseMessaging.instance.setAutoInitEnabled(true);
+
+  // Listener saat Foreground
+  FirebaseMessaging.onMessage.listen(_firebaseMessagingForegroundHandler);
+  // Listener saat Background
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // Listener saat notifikasi di-klik (membuka aplikasi)
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    print('Notifikasi di-klik! Message ID: ${message.messageId}');
+  });
+
+  // 5. Setup Token FCM ke Secure Storage
+  const storage = FlutterSecureStorage();
+  final tokenFcm = await storage.read(key: 'tokenFcm');
+
+  if (tokenFcm == null) {
+    final newTokenFcm = await FirebaseMessaging.instance.getToken();
+    if (newTokenFcm != null) {
+      print('New Token FCM tersimpan: $newTokenFcm');
+      await storage.write(key: 'tokenFcm', value: newTokenFcm);
+    }
+  } else {
+    print('Old Token FCM ditemukan: $tokenFcm');
+  }
+
+  runApp(MyApp());
+}
+
+// ============================================================================
+// ROOT APP WIDGET
+// ============================================================================
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
+
   final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Pustaka Skarla',
-        theme: ThemeData(
-          primarySwatch: Colors.green,
-          textTheme: GoogleFonts.poppinsTextTheme(
-            Theme.of(context).textTheme,
-          ),
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
-          useMaterial3: true,
+      debugShowCheckedModeBanner: false,
+      title: 'Pustaka Skarla',
+      theme: ThemeData(
+        // Menyelaraskan dengan background abu-abu terang modern dari screen lainnya
+        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+        primarySwatch: Colors.green,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green[700]!),
+        textTheme: GoogleFonts.poppinsTextTheme(
+          Theme.of(context).textTheme,
         ),
-        home: FutureBuilder<bool>(
-          future: _authService.isAuthenticated(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
+        useMaterial3: true,
+      ),
+      // Cek status autentikasi di awal mula
+      home: FutureBuilder<bool>(
+        future: _authService.isAuthenticated(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(color: Colors.green),
+              ),
+            );
+          } else {
+            // Langsung arahkan berdasarkan hasil auth
+            if (snapshot.hasData && snapshot.data == true) {
+              return HomePage();
             } else {
-              if (snapshot.hasData && snapshot.data == true) {
-                return const HomePage();
-              } else {
-                return LoginScreen();
-              }
+              return LoginScreen();
             }
-          },
-        ),
-        routes: {
-          '/home': (context) => HomePage(),
-          '/login': (context) => LoginScreen(),
-          // '/detail-book': (context) => BookPage(bookUuid: uuid,)
-        });
+          }
+        },
+      ),
+      routes: {
+        '/home': (context) => HomePage(),
+        '/login': (context) => LoginScreen(),
+      },
+    );
   }
 }

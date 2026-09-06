@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "294654348592",
-    "project_id": "push-library-7396d",
-    "storage_bucket": "push-library-7396d.appspot.com"
+    "project_number": "819084624741",
+    "project_id": "pustakadigital-2026",
+    "storage_bucket": "pustakadigital-2026.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:294654348592:android:5148283e6ea2a8da388cf5",
+        "mobilesdk_app_id": "1:819084624741:android:2e02778409d7061d59178c",
         "android_client_info": {
-          "package_name": "com.example.pustaka"
+          "package_name": "com.ndev.skarla.pustaka"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCr5aPYfxFro_6aUli5TYFNdmkGkrIB-UI"
+          "current_key": "AIzaSyBKOJ_cwu8s73tMvWVjpphiA2QtLdQoo60"
         }
       ],
       "services": {

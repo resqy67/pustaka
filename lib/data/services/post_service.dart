@@ -6,8 +6,8 @@ class PostService {
   // final Dio _dio = Dio(BaseOptions(baseUrl: 'http://id3.labkom.us:4148/api'));
 
   // base url from vps
-  final Dio _dio =
-      Dio(BaseOptions(baseUrl: 'https://pustaka.smkairlanggabpn.sch.id/api',
+  final Dio _dio = Dio(BaseOptions(
+      baseUrl: 'https://pustaka.smkairlanggabpn.sch.id/api',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -39,8 +39,8 @@ class PostService {
       });
       return response.data;
     } catch (e, stacktrace) {
-      print('Error: $e');
-      print('Stacktrace: $stacktrace');
+      // print('Error: $e');
+      // print('Stacktrace: $stacktrace');
       throw Exception('Failed to loan book');
     }
   }
@@ -68,7 +68,8 @@ class PostService {
 
     // Kalau token FCM kosong, langsung return null/aman tanpa nge-hit API
     if (tokenFcm == null || tokenFcm.isEmpty) {
-      print('Token FCM kosong, melewati proses update token.');
+      print('Token FCM: $tokenFcm');
+      // print('Token FCM kosong, melewati proses update token.');
       return null;
     }
 
@@ -79,7 +80,7 @@ class PostService {
       return response.data;
     } catch (e) {
       // Kalau gagal koneksi atau error, cukup cetak log-nya tanpa throw exception/crash
-      print('Gagal update token FCM (diabaikan): $e');
+      // print('Gagal update token FCM (diabaikan): $e');
       return null;
     }
   }

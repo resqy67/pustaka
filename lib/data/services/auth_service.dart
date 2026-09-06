@@ -32,30 +32,31 @@ class AuthService {
   }
 
   Future<User> login(String email, String password) async {
-    // final response = await _dio.post('/login', data: {
-    //   'email': email,
-    //   'password': password,
-    // });
+    final response = await _dio.post('/login', data: {
+      'email': email,
+      'password': password,
+    });
     // print('response data: ${response}');
-    // final user = User.fromJson(response.data);
-    // await _storage.write(key: 'token', value: user.token);
-    // return user;
-    try {
-      final response = await _dio.post('/login', data: {
-        'email': email,
-        'password': password,
-      });
+    final user = User.fromJson(response.data);
+    await _storage.write(key: 'token', value: user.token);
+    return user;
+    // try {
+    //   final response = await _dio.post('/login', data: {
+    //     'email': email,
+    //     'password': password,
+    //   });
 
-      print('response data: ${response.data}');
-      final user = User.fromJson(response.data);
-      await _storage.write(key: 'token', value: user.token);
-      return user;
-    } on DioException catch (e) {
-      // Di sini kita bisa lihat apa alasan server menolak (status 403)
-      print('Error Status: ${e.response?.statusCode}');
-      print('Error Response Data: ${e.response?.data}');
-      rethrow;
-    }
+    //   // print('response data: ${response.data}');
+    //   final user = User.fromJson(response.data);
+    //   await _storage.write(key: 'token', value: user.token);
+    //   return user;
+    // } on DioException catch (e) {
+    //   // Di sini kita bisa lihat apa alasan server menolak (status 403)
+    //   print('Error Status: ${e.response?.statusCode}');
+    //   print('Error Response Data: ${e.response?.data}');
+    //   // rethrow;
+    //   return null;
+    // }
   }
 
   Future<void> logout() async {
@@ -68,13 +69,13 @@ class AuthService {
   Future<GetUser> getUser() async {
     final response = await _dio.get('/user');
     final data = response.data['data'];
-    print('ini datanya $data');
+    // print('ini datanya $data');
     return GetUser.fromJson(data);
   }
 
   Future<bool> isAuthenticated() async {
     final token = await _storage.read(key: 'token');
-    print(token);
+    // print(token);
     return token != null && token.isNotEmpty;
   }
 }

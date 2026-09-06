@@ -10,7 +10,7 @@ Future<String> downloadPdf(String bookUuid, String url) async {
 
   // Check if the file already exists
   if (await File(filePath).exists()) {
-    print('File already exists');
+    // print('File already exists');
     return filePath;
   }
 

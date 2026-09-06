@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pustaka/data/models/users.dart';
 import 'package:pustaka/data/services/auth_service.dart';
 import 'package:pustaka/views/components/book/index.dart';
-import 'package:pustaka/views/components/card.dart';
 import 'package:pustaka/data/services/get_service.dart';
 import 'package:pustaka/data/services/post_service.dart';
 import 'package:pustaka/data/models/book.dart';
@@ -15,411 +14,529 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  late TabController _tabController;
+class _HomeScreenState extends State<HomeScreen> {
   final _getService = GetService();
   final AuthService _authService = AuthService();
+
   int page = 1;
   GetUser? _getUser;
   List<Book> _bookList = [];
-  List<Book> _searchResults = [];
   late ScrollController _scrollController;
   bool isLoading = false;
-  final TextEditingController _searchController = TextEditingController();
-
-  void _postToken() async {
-    final _postService = PostService();
-    _postService.updateTokenFcm();
-  }
+  bool isFetchingMore = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 1, vsync: this);
     _scrollController = ScrollController()..addListener(_scrollListener);
     _fetchBooks();
     _postToken();
-    _searchController.addListener(_onSearchChanged);
     _fetchUser();
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
     _scrollController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged() {
-    setState(() {
-      _searchResults = _bookList
-          .where((book) => book.title
-              .toLowerCase()
-              .contains(_searchController.text.toLowerCase()))
-          .toList();
-    });
+  void _postToken() async {
+    final postService = PostService();
+    postService.updateTokenFcm();
   }
 
   void _fetchUser() async {
     try {
       GetUser getUser = await _authService.getUser();
-      setState(() {
-        _getUser = getUser;
-      });
-      print('ini nama usesrnya ${_getUser?.name}');
+      if (!mounted) return;
+      setState(() => _getUser = getUser);
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('failed to get user')));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal memuat data pengguna')),
+      );
     }
   }
 
   void _fetchBooks() async {
-    if (isLoading) return;
+    if (isLoading || isFetchingMore) return;
+
     setState(() {
-      isLoading = true;
+      page == 1 ? isLoading = true : isFetchingMore = true;
     });
+
     try {
       BookList bookList = await _getService.books(page.toString());
       if (!mounted) return;
       setState(() {
         _bookList.addAll(bookList.books);
-        _searchResults = _bookList;
         page++;
       });
     } catch (e) {
       if (!mounted) return;
-      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to load books: $e'),
-        ),
+        SnackBar(content: Text('Gagal memuat buku: $e')),
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          isFetchingMore = false;
+        });
+      }
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       _fetchBooks();
     }
+  }
+
+  String _getGreeting() {
+    var hour = DateTime.now().hour;
+    if (hour < 12) return 'Selamat Pagi,';
+    if (hour < 15) return 'Selamat Siang,';
+    if (hour < 18) return 'Selamat Sore,';
+    return 'Selamat Malam,';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          children: [
-            _getUser != null
-                ? Text(
-                    'Hallo, ${_getUser!.name}',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  )
-                : Text('Hallo',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.bold)),
-          ],
-        ),
-        actions: <Widget>[
-          IconButton(
-            padding: EdgeInsets.only(right: 20),
-            icon: Icon(
-              Icons.search_outlined,
-              color: Colors.black38,
-              size: 30,
-            ),
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: BookSearchDelegate(_bookList),
-              );
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(children: <Widget>[
-          Container(
-            alignment: Alignment.centerLeft,
-            margin: EdgeInsets.only(top: 20, left: 25, bottom: 10),
-            child: Text(
-              'Buku Terbaru',
-              style: TextStyle(
-                fontSize: 25,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          // Container(
-          //   child: TabBar(
-          //     controller: _tabController,
-          //     isScrollable: true,
-          //     tabAlignment: TabAlignment.start,
-          //     indicatorWeight: 0,
-          //     indicator: BoxDecoration(
-          //       borderRadius: BorderRadius.circular(20),
-          //       color: Colors.green[50],
-          //     ),
-          //     labelPadding:
-          //         EdgeInsets.only(left: 15, right: 15, top: 0, bottom: 0),
-          //     overlayColor: MaterialStateProperty.all(Colors.transparent),
-          //     labelStyle: TextStyle(
-          //       fontSize: 15,
-          //       fontFamily: 'Poppins',
-          //       fontWeight: FontWeight.bold,
-          //     ),
-          //     labelColor: Colors.green[600],
-          //     unselectedLabelColor: Colors.black38,
-          //     tabs: <Widget>[
-          //       Tab(
-          //         text: '  Terbaru  ',
-          //       ),
-          //       // Tab(
-          //       //   text: '  Disarankan  ',
-          //       // ),
-          //     ],
-          //   ),
-          // ),
-          _bookList.isEmpty
-              ? Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    height: 200,
-                    width: double.infinity,
-                    color: Colors.grey[300],
-                  ),
-                )
-              : CarouselSlider(
-                  options: CarouselOptions(
-                    height: 200,
-                    autoPlay: true,
-                    enlargeCenterPage: true,
-                    autoPlayCurve: Curves.fastOutSlowIn,
-                    enableInfiniteScroll: true,
-                    autoPlayAnimationDuration: Duration(milliseconds: 800),
-                    viewportFraction: 0.8,
-                  ),
-                  items: _bookList
-                      .take(10)
-                      .map((book) => CardWidget(
-                            title: book.title.length > 60
-                                ? book.title.substring(0, 60) + "..."
-                                : book.title,
-                            description: book.description.length > 48
-                                ? book.description.substring(0, 48) + "..."
-                                : book.description,
-                            author: book.author.length > 12
-                                ? book.author.substring(0, 12) + "..."
-                                : book.author,
-                            year: book.year,
-                            imageUrl: book.image,
-                            // imageUrl: 'https://picsum.photos/200/300',
-                            bookUuid: book.uuid,
-                          ))
-                      .toList(),
-                ),
-          SizedBox(
-            height: 10,
-          ),
-          // Container(
-          //   width: 340,
-          //   height: 200,
-          //   child: TabBarView(
-          //     controller: _tabController,
-          //     children: <Widget>[
-          //       SingleChildScrollView(
-          //           scrollDirection: Axis.horizontal,
-          //           child: _bookList == null || _bookList.isNotEmpty              ? Row(
-          //                   children: _bookList.take(3).map((book) {
-          //                     return CardWidget(
-          //                       title: book.title.length > 60 ? book.title.substring(0, 60) + "..."
-          //                           : book.title,
-          //                       description: book.description.length > 50
-          //                          d ? book.description.substring(0, 50) + "..."
-          //                           : book.description,
-          //                       author: book.author.length > 18
-          //                         d  ? book.author.substring(0, 18) + "..."
-          //                           : book.author,
-          //                       year: book.year,
-          //                       // rating: 4.5, // Add actual rating if available
-          //                       imageUrl: 'https://picsum.photos/200/300',
-          //                       bookUuid: book.uuid,
-          //                     );
-          //                   }).toList(),
-          //                 )
-          //               : Shimmer.fromColors(
-          //                   baseColor: Colors.grey[300]!,
-          //                   highlightColor: Colors.grey[100]!,
-          //                   child: Container(
-          //                     width: 600,
-          //                     height: 400,
-          //                     color: Colors.grey[300],
-          //                   ))),
-          //     ],
-          //   ),
-          // ),
-          Container(
-            alignment: Alignment.centerLeft,
-            margin: EdgeInsets.only(top: 5, left: 25, bottom: 10),
-            child: Text(
-              'Mungkin Kamu Suka',
-              style: TextStyle(
-                fontSize: 25,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          _bookList.isNotEmpty
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _bookList.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio:
-                          0.62, // Mengatur proporsi tinggi dan lebar kartu
-                    ),
-                    itemBuilder: (context, index) {
-                      final item = _bookList[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  BookPage(bookUuid: item.uuid),
+      backgroundColor: const Color(0xFFFBFBFB),
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: Colors.green[700],
+          onRefresh: () async {
+            page = 1;
+            _bookList.clear();
+            _fetchBooks();
+          },
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // --- STICKY TOP BAR (SLIVER APP BAR) ---
+              SliverAppBar(
+                backgroundColor: const Color(
+                    0xFFFBFBFB), // Warna sama dengan background agar menyatu
+                surfaceTintColor: Colors
+                    .transparent, // Mencegah perubahan warna abu-abu saat di-scroll di Material 3
+                elevation: 0,
+                pinned:
+                    true, // <-- INI KUNCINYA AGAR SEARCH SELALU MENEMPEL DI ATAS
+                toolbarHeight: 90, // Ruang yang lega untuk sapaan
+                titleSpacing: 24, // Jarak padding kiri-kanan
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Sapaan Kiri
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _getGreeting(),
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontFamily: 'Poppins',
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
                             ),
-                          );
-                        },
-                        child: Container(
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _getUser != null ? _getUser!.name : 'Memuat...',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                              letterSpacing: -0.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Aksi Kanan (Search Icon + Avatar)
+                    Row(
+                      children: [
+                        Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                            shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
-                                blurRadius: 8,
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
                             ],
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Bagian Gambar Cover Buku dengan Sudut Melengkung
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(16),
-                                  ),
-                                  child: Image.network(
-                                    item.image,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Container(
-                                      color: Colors.grey[200],
-                                      child: const Center(
-                                        child: Icon(Icons.broken_image,
-                                            color: Colors.grey),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Bagian Teks Judul & Penulis
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.title,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      item.author,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          child: IconButton(
+                            icon: const Icon(Icons.search_rounded,
+                                color: Colors.black87, size: 22),
+                            onPressed: () {
+                              showSearch(
+                                  context: context,
+                                  delegate: BookSearchDelegate(_bookList));
+                            },
                           ),
                         ),
-                      );
-                    },
-                  ),
-                )
-              : Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: 4,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 0.62,
-                      ),
-                      itemBuilder: (context, index) {
-                        return Container(
+                        const SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(16),
+                            shape: BoxShape.circle,
+                            border:
+                                Border.all(color: Colors.green[400]!, width: 2),
                           ),
-                        );
-                      },
+                          child: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Colors.green.withOpacity(0.1),
+                            child: Icon(Icons.person_rounded,
+                                color: Colors.green[700], size: 22),
+                          ),
+                        ),
+                      ],
                     ),
+                  ],
+                ),
+              ),
+
+              // --- BUKU TERBARU (POSTER CAROUSEL) ---
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
+                    _buildSectionHeader('Buku Terbaru', onSeeAll: () {}),
+                    isLoading || _bookList.isEmpty
+                        ? _buildCarouselShimmer()
+                        : CarouselSlider(
+                            options: CarouselOptions(
+                              height: 320,
+                              autoPlay: true,
+                              enlargeCenterPage: true,
+                              enlargeFactor: 0.22,
+                              viewportFraction: 0.75,
+                              autoPlayAnimationDuration:
+                                  const Duration(milliseconds: 1000),
+                            ),
+                            items: _bookList
+                                .take(5)
+                                .map((book) => _buildPosterCard(book))
+                                .toList(),
+                          ),
+                  ],
+                ),
+              ),
+
+              // --- REKOMENDASI (MINIMALIST GRID) ---
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 32, bottom: 16),
+                  child: _buildSectionHeader('Rekomendasi', onSeeAll: () {}),
+                ),
+              ),
+
+              _bookList.isNotEmpty
+                  ? SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      sliver: SliverGrid(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 32,
+                          childAspectRatio: 0.55,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            // Melewati 5 buku pertama agar yang direkomendasikan berbeda dari yang di atas
+                            int actualIndex = (index + 5) % _bookList.length;
+                            return _buildMinimalistGridCard(
+                                _bookList[actualIndex]);
+                          },
+                          childCount: _bookList.length > 5
+                              ? _bookList.length - 5
+                              : _bookList.length,
+                        ),
+                      ),
+                    )
+                  : SliverToBoxAdapter(child: _buildGridShimmer()),
+
+              if (isFetchingMore)
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32.0),
+                    child: Center(child: CircularProgressIndicator()),
                   ),
                 ),
-          SizedBox(height: 20),
-          if (isLoading) Center(child: CircularProgressIndicator())
-        ]),
+
+              const SliverToBoxAdapter(child: SizedBox(height: 30)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =========================================================================
+  // GOKIL UI COMPONENTS
+  // =========================================================================
+
+  Widget _buildSectionHeader(String title, {required VoidCallback onSeeAll}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 22,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w800,
+              color: Colors.black87,
+              letterSpacing: -0.5,
+            ),
+          ),
+          InkWell(
+            onTap: onSeeAll,
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Text(
+                'Semua',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green[600],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPosterCard(Book book) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => BookPage(bookUuid: book.uuid))),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.network(
+                book.image,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: Colors.grey[300],
+                  child:
+                      const Icon(Icons.menu_book, color: Colors.grey, size: 50),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.4),
+                      Colors.black.withOpacity(0.9),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 20,
+                left: 20,
+                right: 20,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.green[400],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'BARU ✨',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      book.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      book.author,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontFamily: 'Poppins',
+                        color: Colors.grey[300],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMinimalistGridCard(Book item) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => BookPage(bookUuid: item.uuid))),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(
+                  item.image,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            item.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 14,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            item.author,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[500],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================================
+  // SHIMMER LOADING
+  // =========================================================================
+  Widget _buildCarouselShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        height: 320,
+        margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+        decoration: BoxDecoration(
+            color: Colors.grey[300], borderRadius: BorderRadius.circular(24)),
+      ),
+    );
+  }
+
+  Widget _buildGridShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 4,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 32,
+            childAspectRatio: 0.55,
+          ),
+          itemBuilder: (context, index) => Container(
+            decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(16)),
+          ),
+        ),
       ),
     );
   }

@@ -1,4 +1,4 @@
-package com.example.pustaka
+package com.ndev.skarla.pustaka
 
 import io.flutter.embedding.android.FlutterActivity
 
